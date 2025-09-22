@@ -38,3 +38,113 @@ Trong đó a^-1 thỏa mãn: a.a^-1 ≡ 1 (mod 26)
 - Vẫn thuộc nhóm mã hóa thay thế đơn bảng → dễ bị phá vỡ bằng tần suất chữ cái (frequency analysis).
 - Không dùng được trong các hệ thống bảo mật hiện đại.
 ### B. Cài đặt
+- Em thực hiện demo một file HTML + JavaScript đơn giản, có giao diện nhập chuỗi, chọn khóa a,b rồi bấm Mã hóa hoặc Giải mã để xem kết quả ngay, có thể nhập cả chữ thường, chữ hoa, số và ký tự đặc biệt. Thay vì chỉ làm việc với bảng chữ cái A–Z (26 ký tự), ta sẽ coi tất cả ký tự in được trong bảng ASCII (từ mã 32 → 126, tổng cộng 95 ký tự) đều tham gia mã hóa.
+- Ngoài ra, em bổ sung thêm tính năng kiểm tra và gợi ý các giá trị a hợp lệ (những số nguyên tố cùng nhau với 95) ngay trên giao diện. Khi nhập khóa a không hợp lệ, chương trình sẽ báo lỗi và hiển thị danh sách các giá trị a có thể dùng.
+
+Một số đoạn code chính trong chương trình cài đặt:
+```html
+  <script>
+    const CHAR_START = 32; // khoảng trắng
+    const CHAR_END = 126;  // ~
+    const CHAR_RANGE = CHAR_END - CHAR_START + 1; // 95 ký tự
+
+    // gcd
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    // nghịch đảo modulo
+    function modInverse(a, m) {
+      a = ((a % m) + m) % m;
+      for (let x = 1; x < m; x++) {
+        if ((a * x) % m === 1) return x;
+      }
+      return null;
+    }
+
+    // liệt kê tất cả giá trị a hợp lệ
+    function validAValues() {
+      let list = [];
+      for (let i = 1; i < CHAR_RANGE; i++) {
+        if (gcd(i, CHAR_RANGE) === 1) list.push(i);
+      }
+      return list;
+    }
+
+    function checkKeyA() {
+      let a = parseInt(document.getElementById("keyA").value);
+      let hintDiv = document.getElementById("keyAHint");
+
+      if (isNaN(a)) {
+        hintDiv.innerHTML = "<div class='bg-error/20 border border-error/30 rounded-lg p-3'><span class='text-red-200 font-medium'>⚠️ Vui lòng nhập số cho khóa a</span></div>";
+        return;
+      }
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        hintDiv.innerHTML = "<div class='bg-error/20 border border-error/30 rounded-lg p-3'>" +
+          "<span class='text-red-200 font-medium'>❌ a = " + a + " không hợp lệ</span><br>" +
+          "<span class='text-red-100 text-sm'>👉 Các giá trị a hợp lệ: " + validAValues().slice(0, 20).join(", ") + "...</span></div>";
+      } else {
+        hintDiv.innerHTML = "<div class='bg-success/20 border border-success/30 rounded-lg p-3'>" +
+          "<span class='text-green-200 font-medium'>✅ Hợp lệ (gcd(" + a + ", " + CHAR_RANGE + ") = 1)</span></div>";
+      }
+    }
+
+    function encrypt() {
+      let text = document.getElementById("inputText").value;
+      let a = parseInt(document.getElementById("keyA").value);
+      let b = parseInt(document.getElementById("keyB").value);
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Khóa 'a' không hợp lệ!</div>";
+        return;
+      }
+
+      let result = "";
+      for (let char of text) {
+        let code = char.charCodeAt(0);
+        if (code >= CHAR_START && code <= CHAR_END) {
+          let P = code - CHAR_START;
+          let C = (a * P + b) % CHAR_RANGE;
+          result += String.fromCharCode(C + CHAR_START);
+        } else {
+          result += char;
+        }
+      }
+      document.getElementById("output").innerHTML = "<div class='text-blue-200 font-semibold mb-2'>🔒 Bản mã:</div><div class='text-white'>" + result + "</div>";
+    }
+
+    function decrypt() {
+      let text = document.getElementById("inputText").value;
+      let a = parseInt(document.getElementById("keyA").value);
+      let b = parseInt(document.getElementById("keyB").value);
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Khóa 'a' không hợp lệ!</div>";
+        return;
+      }
+
+      let a_inv = modInverse(a, CHAR_RANGE);
+      if (a_inv === null) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Không tìm được nghịch đảo modulo!</div>";
+        return;
+      }
+
+      let result = "";
+      for (let char of text) {
+        let code = char.charCodeAt(0);
+        if (code >= CHAR_START && code <= CHAR_END) {
+          let C = code - CHAR_START;
+          let P = (a_inv * (C - b + CHAR_RANGE)) % CHAR_RANGE;
+          result += String.fromCharCode(P + CHAR_START);
+        } else {
+          result += char;
+        }
+      }
+      document.getElementById("output").innerHTML = "<div class='text-green-200 font-semibold mb-2'>🔓 Bản rõ:</div><div class='text-white'>" + result + "</div>";
+    }
+
+    // hiển thị gợi ý ngay khi load
+    window.onload = checkKeyA;
+  </script>
+```

@@ -41,7 +41,7 @@ Trong đó a^-1 thỏa mãn: a.a^-1 ≡ 1 (mod 26)
 - Em thực hiện demo một file HTML + JavaScript đơn giản, có giao diện nhập chuỗi, chọn khóa a,b rồi bấm Mã hóa hoặc Giải mã để xem kết quả ngay, có thể nhập cả chữ thường, chữ hoa, số và ký tự đặc biệt. Thay vì chỉ làm việc với bảng chữ cái A–Z (26 ký tự), ta sẽ coi tất cả ký tự in được trong bảng ASCII (từ mã 32 → 126, tổng cộng 95 ký tự) đều tham gia mã hóa.
 - Ngoài ra, em bổ sung thêm tính năng kiểm tra và gợi ý các giá trị a hợp lệ (những số nguyên tố cùng nhau với 95) ngay trên giao diện. Khi nhập khóa a không hợp lệ, chương trình sẽ báo lỗi và hiển thị danh sách các giá trị a có thể dùng.
 
-Một số đoạn code chính trong chương trình cài đặt:
+#### Một số đoạn code chính trong chương trình cài đặt:
 ```html
   <script>
     const CHAR_START = 32; // khoảng trắng
@@ -148,3 +148,14 @@ Một số đoạn code chính trong chương trình cài đặt:
     window.onload = checkKeyA;
   </script>
 ```
+#### Hình ảnh demo
+Giao diện khởi chạy
+<img width="3064" height="1824" alt="image" src="https://github.com/user-attachments/assets/20dd4ee9-adfd-4074-a199-332e698f6943" />
+
+Với trường hợp khóa a hợp lệ và thực hiện mã hóa chuỗi "Hello everyone, I am Hieu and today I demo a program" thành bản mã:
+<img width="3071" height="1823" alt="image" src="https://github.com/user-attachments/assets/e41ba52e-6740-4eae-9999-f61e73e47567" />
+Copy bản mã vừa thu được rồi giải mã để kiểm tra chuỗi có đúng như ban đầu hay không:
+<img width="3070" height="1821" alt="image" src="https://github.com/user-attachments/assets/ff8e9acb-b315-4d7e-b83e-330f8e690bff" />
+Trong trường hợp nhập khóa a không hợp lệ, hệ thống sẽ cảnh báo và đề xuất:
+<img width="3065" height="1818" alt="image" src="https://github.com/user-attachments/assets/2814a0c7-3266-408e-855b-a16048bf4d15" />
+#### Trên đây là toàn bộ bài làm của em. Tóm lại, Affine Cipher là một phương pháp mã hóa cổ điển dựa trên công thức tuyến tính trong số học modulo. Nó là bước phát triển cao hơn so với Caesar Cipher nhưng vẫn không đủ an toàn với công nghệ hiện nay.

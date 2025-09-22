@@ -1,4 +1,4 @@
-# Classical_encryption
+<img width="3071" height="1820" alt="image" src="https://github.com/user-attachments/assets/46702c6a-623a-4614-97d2-e7ada6e59814" /># Classical_encryption
 Bài tập về các phương pháp mã hóa cổ điển
 ## Thông tin cá nhân
 #### Họ và tên : Nguyễn Trung Hiếu
@@ -135,3 +135,13 @@ Em sẽ cài đặt demo Playfair Cipher bằng JavaScript với giao diện đ�
   </script>
 ```
 #### Hình ảnh demo
+Giao diện demo:
+<img width="3069" height="1818" alt="Screenshot 2025-09-22 213104" src="https://github.com/user-attachments/assets/54c9431f-f217-4a7f-ad36-7a0f4dc597f2" />
+
+Nhập khóa và chuỗi chữ để Mã hóa:
+<img width="3071" height="1823" alt="Screenshot 2025-09-22 213547" src="https://github.com/user-attachments/assets/bd0503d3-ff6f-46ab-aab5-be25bbf257e3" />
+
+Thực hiện giải mã chuỗi vừa mã hóa để kiểm tra xem kết quả có giống bản rõ không:
+<img width="3071" height="1820" alt="Screenshot 2025-09-22 213622" src="https://github.com/user-attachments/assets/6255886e-57eb-4df8-934b-d52b245b07a5" />
+
+#### Như vậy em đã thực hiện xong việc demo phương pháp Playfair, như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn trong thời kỳ chưa có máy tính. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.

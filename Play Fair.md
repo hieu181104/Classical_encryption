@@ -36,3 +36,102 @@ Giải mã ngược lại:
 - Vẫn có thể bị phá bằng phân tích tần suất trên digraph (ví dụ “TH”, “ER”, “ON”…).
 - Ngày nay không còn an toàn với máy tính, chỉ dùng trong nghiên cứu lịch sử mật mã.
 ### B. Cài đặt
+Em sẽ cài đặt demo Playfair Cipher bằng JavaScript với giao diện đơn giản: nhập bản rõ + khóa → bấm nút để mã hóa hoặc giải mã.
+#### Một số đoạn code chính trong chương trình demo:
+```html
+  <script>
+    function generateMatrix(key) {
+      key = key.toUpperCase().replace(/J/g, "I").replace(/[^A-Z]/g, "");
+      let seen = new Set();
+      let matrix = [];
+      let alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // I/J gộp chung
+      let combined = key + alphabet;
+
+      for (let ch of combined) {
+        if (!seen.has(ch)) {
+          seen.add(ch);
+          matrix.push(ch);
+        }
+      }
+      return matrix; // 25 ký tự
+    }
+
+    function preprocessText(text, forEncrypt = true) {
+      text = text.toUpperCase().replace(/J/g, "I").replace(/[^A-Z]/g, "");
+      if (!forEncrypt) return text;
+
+      let result = "";
+      for (let i = 0; i < text.length; i++) {
+        let a = text[i];
+        let b = text[i + 1] || "";
+        if (a === b) {
+          result += a + "X";
+        } else {
+          if (b) {
+            result += a + b;
+            i++;
+          } else {
+            result += a + "X";
+          }
+        }
+      }
+      return result;
+    }
+
+    function findPos(matrix, ch) {
+      let index = matrix.indexOf(ch);
+      return [Math.floor(index / 5), index % 5];
+    }
+
+    function encrypt() {
+      let key = document.getElementById("key").value;
+      let text = preprocessText(document.getElementById("inputText").value, true);
+      let matrix = generateMatrix(key);
+      let result = "";
+
+      for (let i = 0; i < text.length; i += 2) {
+        let a = text[i], b = text[i + 1];
+        let [rowA, colA] = findPos(matrix, a);
+        let [rowB, colB] = findPos(matrix, b);
+
+        if (rowA === rowB) {
+          result += matrix[rowA * 5 + (colA + 1) % 5];
+          result += matrix[rowB * 5 + (colB + 1) % 5];
+        } else if (colA === colB) {
+          result += matrix[((rowA + 1) % 5) * 5 + colA];
+          result += matrix[((rowB + 1) % 5) * 5 + colB];
+        } else {
+          result += matrix[rowA * 5 + colB];
+          result += matrix[rowB * 5 + colA];
+        }
+      }
+      document.getElementById("outputText").value = result;
+    }
+
+    function decrypt() {
+      let key = document.getElementById("key").value;
+      let text = preprocessText(document.getElementById("inputText").value, false);
+      let matrix = generateMatrix(key);
+      let result = "";
+
+      for (let i = 0; i < text.length; i += 2) {
+        let a = text[i], b = text[i + 1];
+        let [rowA, colA] = findPos(matrix, a);
+        let [rowB, colB] = findPos(matrix, b);
+
+        if (rowA === rowB) {
+          result += matrix[rowA * 5 + (colA + 4) % 5];
+          result += matrix[rowB * 5 + (colB + 4) % 5];
+        } else if (colA === colB) {
+          result += matrix[((rowA + 4) % 5) * 5 + colA];
+          result += matrix[((rowB + 4) % 5) * 5 + colB];
+        } else {
+          result += matrix[rowA * 5 + colB];
+          result += matrix[rowB * 5 + colA];
+        }
+      }
+      document.getElementById("outputText").value = result;
+    }
+  </script>
+```
+#### Hình ảnh demo

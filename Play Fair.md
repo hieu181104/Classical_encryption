@@ -143,5 +143,4 @@ Nhập khóa và chuỗi chữ để Mã hóa:
 
 Thực hiện giải mã chuỗi vừa mã hóa để kiểm tra xem kết quả có giống bản rõ không:
 <img width="3071" height="1820" alt="Screenshot 2025-09-22 213622" src="https://github.com/user-attachments/assets/6255886e-57eb-4df8-934b-d52b245b07a5" />
-
-#### Như vậy em đã thực hiện xong việc demo phương pháp Playfair, như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn trong thời kỳ chưa có máy tính. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.
+#### Em đã thực hiện xong việc demo phương pháp Playfair, như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.

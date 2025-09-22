@@ -157,5 +157,6 @@ Với trường hợp khóa a hợp lệ và thực hiện mã hóa chuỗi "Hel
 Copy bản mã vừa thu được rồi giải mã để kiểm tra chuỗi có đúng như ban đầu hay không:
 <img width="3070" height="1821" alt="image" src="https://github.com/user-attachments/assets/ff8e9acb-b315-4d7e-b83e-330f8e690bff" />
 Trong trường hợp nhập khóa a không hợp lệ, hệ thống sẽ cảnh báo và đề xuất:
-<img width="3065" height="1818" alt="image" src="https://github.com/user-attachments/assets/2814a0c7-3266-408e-855b-a16048bf4d15" />
+<img width="3071" height="1817" alt="image" src="https://github.com/user-attachments/assets/8bc45b5f-39ae-41fa-91f0-7e063753bb20" />
+
 #### Trên đây là toàn bộ bài làm của em. Tóm lại, Affine Cipher là một phương pháp mã hóa cổ điển dựa trên công thức tuyến tính trong số học modulo. Nó là bước phát triển cao hơn so với Caesar Cipher nhưng vẫn không đủ an toàn với công nghệ hiện nay.

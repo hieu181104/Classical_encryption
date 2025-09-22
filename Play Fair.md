@@ -1,4 +1,4 @@
-<img width="3071" height="1820" alt="image" src="https://github.com/user-attachments/assets/46702c6a-623a-4614-97d2-e7ada6e59814" /># Classical_encryption
+# Classical_encryption
 Bài tập về các phương pháp mã hóa cổ điển
 ## Thông tin cá nhân
 #### Họ và tên : Nguyễn Trung Hiếu

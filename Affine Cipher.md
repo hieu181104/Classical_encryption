@@ -26,7 +26,15 @@ Trong đó:
 ##### b, Giải mã
 Để giải mã, ta cần tìm nghịch đảo modulo của a, gọi là a^-1
 
-Công thức giải mã: <strong>P ≡ a^-1 (C-b) (mod 26)
+Công thức giải mã: <strong>P ≡ a^-1 (C-b) (mod 26)</strong>
 
 Trong đó a^-1 thỏa mãn: a.a^-1 ≡ 1 (mod 26)
-#### 3. Ưu và nhược điểm
+#### 3. Ưu điểm và nhược điểm
+##### Ưu điểm:
+- Dễ cài đặt, dễ hiểu.
+- An toàn hơn Caesar Cipher (có nhiều khóa hơn).
+- Sử dụng công thức toán học rõ ràng.
+##### Nhược điểm:
+- Vẫn thuộc nhóm mã hóa thay thế đơn bảng → dễ bị phá vỡ bằng tần suất chữ cái (frequency analysis).
+- Không dùng được trong các hệ thống bảo mật hiện đại.
+### B. Cài đặt

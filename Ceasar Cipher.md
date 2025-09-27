@@ -32,7 +32,8 @@ Ta có thể dùng Brute-force (thử tất cả khóa)
 - Thường dùng để lấy ra bản rõ đọc được bằng mắt người hoặc bằng kiểm tra ngôn ngữ (dictionary / heuristic).
 Thời gian: O(m · n).
 ### B. Cài đặt
-#### Một số đoạn code chính cài đặt chương trình:
+#### Demo HTML+CSS+JS
+Em đã thực hiện demo phương pháp này với HTML+CSS+JS để thực hiện mã hóa/ giải mã. Dưới đây là một số đoạn code chính:
 ```html
 <body>
   <div class="container">
@@ -82,9 +83,6 @@ Thời gian: O(m · n).
   </div>
 
   <script>
-    // ============================
-    // 1. Caesar Cipher cho chuỗi
-    // ============================
     function caesarCipher(str, shift) {
       return str.split('').map(char => {
         let code = char.charCodeAt(0);
@@ -120,9 +118,6 @@ Thời gian: O(m · n).
       document.getElementById("resultText").innerText = result;
     }
 
-    // ============================
-    // 2. Caesar Cipher cho ảnh
-    // ============================
     let originalBuffer = null;
 
     document.getElementById("fileInput").addEventListener("change", function(e) {
@@ -173,7 +168,7 @@ Thời gian: O(m · n).
   </script>
 </body>
 ```
-#### Cách thực hiện:
+##### Cách thực hiện:
 Phần 1: Mã hóa/ Giải mã chuỗi
 - Nhập chuỗi, nhập khóa rồi nhấn nút Mã hóa/ Giải mã để nhận kết quả
 
@@ -182,7 +177,7 @@ Phần 2: Mã hóa/ Giải mã ảnh
 - Nhập khóa
 - Nhấn Mã hóa ảnh => tải về file ảnh đã mã hóa (vì sau khi mã hóa, dữ liệu của ảnh đã bị biến đổi nên không thể xem được ảnh)
 - Nhấn Giải mã ảnh => tải về file ảnh sau khi giải mã (xem được bình thường).
-#### Demo
+##### Hình ảnh demo
 ##### 1. Giao diện demo
 <img width="3070" height="1817" alt="image" src="https://github.com/user-attachments/assets/6d8dcb3b-9efb-41bf-b308-5b808fd66146" />
 
@@ -211,4 +206,7 @@ Bây giờ chọn lại file vừa tải xuống để thực hiện giải mã,
 <img width="2445" height="495" alt="image" src="https://github.com/user-attachments/assets/e0fbdbc8-3478-495b-b59e-85472e65699b" />
 <strong>Sau khi mở file giải mã ta thu được ảnh giống ban đầu. </strong>
 <img width="3071" height="1820" alt="image" src="https://github.com/user-attachments/assets/333efe1a-c22d-4a18-9d99-9bac0628bf09" />
+
+#### Demo C++
+
 ### -------------------------------------------------HẾT-------------------------------------------------

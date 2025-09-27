@@ -73,7 +73,8 @@ IoC ≈ 1/26 ≈ 0.03846
 Có công thức ước lượng m (Friedman formula — dạng xấp xỉ):
 <img width="1592" height="159" alt="image" src="https://github.com/user-attachments/assets/e9eb92f2-e549-4df6-895d-c15ebd7991ed" />
 ### B. Cài đặt
-Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa Vigenere Cipher bằng js và html với tính năng:
+#### Demo HTML + CSS + JS
+Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa Vigenere Cipher với tính năng:
 
 Mã hóa / giải mã bằng Vigenère.
 
@@ -276,5 +277,59 @@ Tuỳ chọn xử lý chữ hoa/chữ thường, nút sao chép, và hoán đổ
 ##### Ở chế độ Letter only (chỉ từ A-Z) cách hoạt động tương tự nhưng chỉ mã hóa các kí tự từ A -> Z:
 <img width="3071" height="1819" alt="Screenshot 2025-09-27 093151" src="https://github.com/user-attachments/assets/a9abb817-8f33-4975-98f8-2dfa28277b5d" />
 <img width="3070" height="1812" alt="Screenshot 2025-09-27 093226" src="https://github.com/user-attachments/assets/4e8ac8c9-8a92-4fca-8d3e-ab5c32fbaa41" />
+
+#### Demo C++:
+##### Một số hàm chính:
+```cpp
+std::string encrypt(const std::string& plaintext, const std::string& key) {
+    if (key.empty()) return plaintext; // No encryption if key is empty
+
+    std::string result;
+    std::string upperKey = key;
+    for (char& c : upperKey) {
+        c = std::toupper(c); // Convert key to uppercase for simplicity
+    }
+
+    size_t keyIndex = 0;
+    for (char c : plaintext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            char keyChar = upperKey[keyIndex % upperKey.length()];
+            int shift = keyChar - 'A';
+            result += static_cast<char>((c - base + shift) % 26 + base);
+            keyIndex++;
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+
+std::string decrypt(const std::string& ciphertext, const std::string& key) {
+    if (key.empty()) return ciphertext; // No decryption if key is empty
+
+    std::string result;
+    std::string upperKey = key;
+    for (char& c : upperKey) {
+        c = std::toupper(c); // Convert key to uppercase for simplicity
+    }
+
+    size_t keyIndex = 0;
+    for (char c : ciphertext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            char keyChar = upperKey[keyIndex % upperKey.length()];
+            int shift = keyChar - 'A';
+            result += static_cast<char>((c - base - shift + 26) % 26 + base);
+            keyIndex++;
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+```
+#### Hình ảnh demo:
+
 
 #### Trên đây là phần demo của em về phương pháp Vigenere Cipher trong bảo mật thông tin. Như vậy bằng việc sử dụng khóa gồm nhiều ký tự, Vigenere Cipher giúp tăng tính bảo mật hơn so với các phương pháp đơn bảng.

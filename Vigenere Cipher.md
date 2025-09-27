@@ -53,7 +53,14 @@ IoC ≈ 1/26 ≈ 0.03846
 Có công thức ước lượng m (Friedman formula — dạng xấp xỉ):
 <img width="1592" height="159" alt="image" src="https://github.com/user-attachments/assets/e9eb92f2-e549-4df6-895d-c15ebd7991ed" />
 ### B. Cài đặt
-Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa Vigenere Cipher bằng js và html, dưới đây là một số đoạn code chính:
+Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa Vigenere Cipher bằng js và html với tính năng:
+
+Mã hóa / giải mã bằng Vigenère.
+
+Hai chế độ: Letters only (A–Z) và Full printable ASCII (32–126) (hỗ trợ số và ký tự đặc biệt).
+
+Tuỳ chọn xử lý chữ hoa/chữ thường, nút sao chép, và hoán đổi input/output., dưới đây là một số đoạn code chính:
+
 ```html
   <script>
     // Utils
@@ -240,3 +247,11 @@ Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa V
   </script>
 ```
 #### Hình ảnh demo
+##### Mã hóa chuỗi bao gồm cả chữ cái, số và kí tự:
+<img width="3068" height="1817" alt="Screenshot 2025-09-27 092831" src="https://github.com/user-attachments/assets/26b6d8ba-b23a-4e49-93bb-7d4a64e0b373" />
+##### Giải mã chuỗi vừa rồi:
+<img width="3071" height="1818" alt="Screenshot 2025-09-27 092943" src="https://github.com/user-attachments/assets/446fa6df-6d70-4018-abf7-fff124595ea2" />
+##### Ở chế độ Letter only (chỉ từ A-Z) cách hoạt động tương tự nhưng chỉ mã hóa các kí tự từ A -> Z:
+<img width="3071" height="1819" alt="Screenshot 2025-09-27 093151" src="https://github.com/user-attachments/assets/a9abb817-8f33-4975-98f8-2dfa28277b5d" />
+<img width="3070" height="1812" alt="Screenshot 2025-09-27 093226" src="https://github.com/user-attachments/assets/4e8ac8c9-8a92-4fca-8d3e-ab5c32fbaa41" />
+#### Trên đây là phần demo của em về phương pháp Vigenere Cipher trong bảo mật thông tin. Như vậy bằng việc sử dụng khóa gồm nhiều ký tự, Vigenere Cipher giúp tăng tính bảo mật hơn so với các phương pháp đơn bảng.

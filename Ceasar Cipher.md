@@ -26,6 +26,11 @@ Khóa khả dĩ: k = 0,1,…,25 → 25 khóa hữu ích (k = 0 là khóa vô tá
 - Nếu áp dụng trên từng byte (0–255): m = 256 → 256 khóa.
 
 Kết luận: keyspace rất nhỏ → dễ tấn công bằng brute-force.
+#### 4. Cách phá mã (mà không cần khóa)
+Ta có thể dùng Brute-force (thử tất cả khóa)
+- Thử mọi k trong keyspace, giải mã và kiểm tra kết quả. Với m=26, chỉ 25 thử — cực nhanh.
+- Thường dùng để lấy ra bản rõ đọc được bằng mắt người hoặc bằng kiểm tra ngôn ngữ (dictionary / heuristic).
+Thời gian: O(m · n).
 ### B. Cài đặt
 #### Một số đoạn code chính cài đặt chương trình:
 ```html

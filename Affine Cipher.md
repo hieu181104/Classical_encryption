@@ -33,18 +33,20 @@ Trong đó a^-1 thỏa mãn: a.a^-1 ≡ 1 (mod 26)
 - Tính a^-1 modulo m (nghịch đảo của a).Nếu không tồn tại → dừng (khóa sai).
 
 Với mỗi ký tự ciphertext char:
-- C = code(ch) → 0..m-1.
+- C = code(char) → 0..m-1.
 - P = (a_inv * (C - b + m)) % m.
 - Chuyển P về ký tự plaintext.
 - Nối lại thành plaintext.
-#### 3. Ưu điểm và nhược điểm
-##### Ưu điểm:
-- Dễ cài đặt, dễ hiểu.
-- An toàn hơn Caesar Cipher (có nhiều khóa hơn).
-- Sử dụng công thức toán học rõ ràng.
-##### Nhược điểm:
-- Vẫn thuộc nhóm mã hóa thay thế đơn bảng → dễ bị phá vỡ bằng tần suất chữ cái (frequency analysis).
-- Không dùng được trong các hệ thống bảo mật hiện đại.
+
+#### 3. Không gian khóa
+<img width="1532" height="483" alt="image" src="https://github.com/user-attachments/assets/b6375c33-ef97-40d2-8ffc-3ef09122cbf3" />
+
+#### 4. Cách phá mã (mà không cần khóa)
+Brute-force (thử tất cả cặp (a,b)):
+
+- Vì keyspace nhỏ (ví dụ 312 hoặc 6.840), brute-force là hoàn toàn khả thi: thử mọi a hợp lệ và mọi b, giải mã và kiểm tra kết quả.
+- Tại thao tác tự động, dùng tiêu chí như: có những từ tiếng Việt/Anh phổ biến, hoặc kiểm tra xem ký tự có thuộc bảng in được, hoặc tính điểm chi-squared/độ tương đồng tần suất so với ngôn ngữ.
+- Độ phức tạp: 𝑂(𝜑(𝑚)⋅𝑚⋅𝐿) với 𝐿 là chiều dài văn bản (thực tế rất nhỏ). Với m=26, chỉ 312 thử.
 ### B. Cài đặt
 - Em thực hiện demo một file HTML + JavaScript đơn giản, có giao diện nhập chuỗi, chọn khóa a,b rồi bấm Mã hóa hoặc Giải mã để xem kết quả ngay, có thể nhập cả chữ thường, chữ hoa, số và ký tự đặc biệt. Thay vì chỉ làm việc với bảng chữ cái A–Z (26 ký tự), ta sẽ coi tất cả ký tự in được trong bảng ASCII (từ mã 32 → 126, tổng cộng 95 ký tự) đều tham gia mã hóa.
 - Ngoài ra, em bổ sung thêm tính năng kiểm tra và gợi ý các giá trị a hợp lệ (những số nguyên tố cùng nhau với 95) ngay trên giao diện. Khi nhập khóa a không hợp lệ, chương trình sẽ báo lỗi và hiển thị danh sách các giá trị a có thể dùng.

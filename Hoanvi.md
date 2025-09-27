@@ -4,6 +4,6 @@ Bài tập về các phương pháp mã hóa cổ điển
 #### Họ và tên : Nguyễn Trung Hiếu
 #### Mã SV: K225480106019
 #### Lớp: K58KTP
-## Phương pháp mã hóa Affine Cipher
+## Phương pháp mã hóa Hoán vị
 ### A. Lý thuyết
 #### 1. Khái niệm

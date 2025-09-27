@@ -252,3 +252,86 @@ Hiển thị matrix:
 <img width="1140" height="1350" alt="Screenshot 2025-09-27 102117" src="https://github.com/user-attachments/assets/c316179e-f6f2-47e7-8ea2-c3be7535af1f" />
 
 #### Demo code C++:
+##### Một số hàm:
+```cpp
+std::string encrypt(const std::string& plaintext, const std::string& key) {
+    int cols = key.length();
+    int rows = std::ceil(static_cast<double>(plaintext.length()) / cols);
+    std::vector<std::vector<char>> matrix(rows, std::vector<char>(cols, 'X')); // Pad with 'X' if needed
+
+    // Fill the matrix row-wise
+    int index = 0;
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            if (index < plaintext.length()) {
+                matrix[r][c] = plaintext[index++];
+            }
+        }
+    }
+
+    // Create permutation based on key
+    std::vector<std::pair<char, int>> key_pairs;
+    for (int i = 0; i < cols; ++i) {
+        key_pairs.emplace_back(key[i], i);
+    }
+    std::sort(key_pairs.begin(), key_pairs.end());
+
+    // Read column-wise in the order of the sorted key
+    std::string ciphertext;
+    for (const auto& pair : key_pairs) {
+        int col = pair.second;
+        for (int r = 0; r < rows; ++r) {
+            ciphertext += matrix[r][col];
+        }
+    }
+    return ciphertext;
+}
+
+std::string decrypt(const std::string& ciphertext, const std::string& key) {
+    int cols = key.length();
+    int rows = std::ceil(static_cast<double>(ciphertext.length()) / cols);
+    std::vector<std::vector<char>> matrix(rows, std::vector<char>(cols, 'X'));
+
+    // Create permutation based on key
+    std::vector<std::pair<char, int>> key_pairs;
+    for (int i = 0; i < cols; ++i) {
+        key_pairs.emplace_back(key[i], i);
+    }
+    std::sort(key_pairs.begin(), key_pairs.end());
+
+    // Fill the matrix column-wise in the order of the sorted key
+    int index = 0;
+    for (const auto& pair : key_pairs) {
+        int col = pair.second;
+        for (int r = 0; r < rows; ++r) {
+            if (index < ciphertext.length()) {
+                matrix[r][col] = ciphertext[index++];
+            }
+        }
+    }
+
+    // Read row-wise to get plaintext
+    std::string plaintext;
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            plaintext += matrix[r][c];
+        }
+    }
+    // Remove trailing 'X' padding if any
+    while (!plaintext.empty() && plaintext.back() == 'X') {
+        plaintext.pop_back();
+    }
+    return plaintext;
+}
+```
+##### Hình ảnh demo:
+Thực hiện nhập Key, Plaintext cho quá trình mã hóa:
+<img width="2347" height="1215" alt="Screenshot 2025-09-27 154112" src="https://github.com/user-attachments/assets/b0a320fa-6adf-4ebc-aa7a-8dac4438ed3f" />
+
+Kết quả mã hóa:
+<img width="2339" height="1220" alt="Screenshot 2025-09-27 154214" src="https://github.com/user-attachments/assets/d88c1ddf-81e2-4653-aaba-927be9b7a217" />
+
+Thực hiện giải mã chuỗi vừa nhận:
+<img width="2344" height="1215" alt="Screenshot 2025-09-27 154426" src="https://github.com/user-attachments/assets/debbcee4-7ff1-4937-9afb-c55338bffda3" />
+
+## --------------------------------------------------HẾT--------------------------------------------------

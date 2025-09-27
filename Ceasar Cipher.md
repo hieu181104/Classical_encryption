@@ -17,13 +17,15 @@ Với P là bản rõ, C là bản mã, ta có:
 ##### Giải mã:
 - <strong>P = (C-k) mod m</strong>
 
-#### 3. Ưu điểm và nhược điểm
-##### Ưu điểm:
-- Đơn giản, dễ hiểu và dễ thực hiện.
-- Là nền tảng nghiên cứu các phương pháp mã hóa phức tạp hơn.
-##### Nhược điểm:
-- Độ an toàn rất thấp bởi chỉ có 25 khóa khả dĩ, dễ dàng bị phá bằng thử hết (brute-force).
-- Có thể bị phân tích tần suất chữ cái để đoán ra bản rõ.
+Độ phức tạp thuật toán: mã hóa/giải mã đều O(n) với n = số ký tự
+#### 3. Không gian khóa
+- Nếu chỉ dịch trong bảng chữ cái tiếng Anh (A–Z): m = 26.
+
+Khóa khả dĩ: k = 0,1,…,25 → 25 khóa hữu ích (k = 0 là khóa vô tác dụng).
+- Nếu áp dụng lên chữ + số (ví dụ A–Z + 0–9) kích thước tăng lên tương ứng.
+- Nếu áp dụng trên từng byte (0–255): m = 256 → 256 khóa.
+
+Kết luận: keyspace rất nhỏ → dễ tấn công bằng brute-force.
 ### B. Cài đặt
 #### Một số đoạn code chính cài đặt chương trình:
 ```html

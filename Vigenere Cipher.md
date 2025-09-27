@@ -6,22 +6,44 @@ Bài tập về các phương pháp mã hóa cổ điển
 #### Lớp: K58KTP
 ## Phương pháp mã hóa Vigenere Cipher
 ### A. Lý thuyết
-#### 1. Khái niệm
+#### 1. Tên gọi
 Vigenère Cipher là một phương pháp mã hóa cổ điển thuộc nhóm đa bảng (polyalphabetic cipher). Nó được Blaise de Vigenère giới thiệu vào thế kỷ 16. Điểm mạnh của Vigenère Cipher so với các phương pháp đơn bảng là sử dụng một khóa (key) gồm nhiều ký tự, giúp tăng tính bảo mật.
-#### 2. Nguyên lý hoạt động
-Bản rõ (Plaintext): Chuỗi thông tin gốc cần mã hóa.
-
-Khóa (Key): Một từ hoặc cụm từ gồm các chữ cái. Khóa sẽ được lặp lại nhiều lần cho đến khi có cùng độ dài với bản rõ.
-
+#### 2. Thuật toán mã hóa và giải mã
 Bảng chữ cái Vigenère (Vigenère Table): Gồm 26 hàng, mỗi hàng là một phép dịch Caesar khác nhau.
-##### Cách mã hóa:
+##### Mã hóa:
 Mỗi ký tự trong bản rõ sẽ được mã hóa bằng một phép dịch Caesar, trong đó số bước dịch phụ thuộc vào ký tự khóa tương ứng.
 
 Công thức: <strong>Ci​=(Pi​+Ki​) mod 26</strong>
 
 Trong đó: Ci là kí tự mã hóa, Pi là vị trí chữ cái của bản rõ, Ki là vị trí chữ cái của khóa.
-##### Cách giải mã:
+```python
+MOD = 95   // printable chars count
+BASE = 32
+function encrypt_ascii(plaintext, key):
+    if key is empty: error
+    key_chars = key (as-is)
+    key_arr = [ (ord(kc) - BASE) mod MOD for kc in repeated key to length of printable chars in plaintext ]
+    key_index = 0
+    result = ""
+    for ch in plaintext:
+        code = ord(ch)
+        if 32 <= code <= 126:
+            p = code - BASE
+            k = key_arr[key_index]
+            c = (p + k) % MOD
+            result += chr(c + BASE)
+            key_index += 1
+        else:
+            result += ch
+    return result
+```
+##### Giải mã:
 Thực hiện phép dịch ngược lại: <strong>Pi​=(Ci​−Ki​+26) mod 26</strong>
+```js
+function decrypt_letters_only(ciphertext, key):
+    same as encrypt but:
+        p = (c - k + 26) % 26
+```
 #### 3. Không gian khóa
 Nếu dùng bảng chữ cái tiếng Anh 26 chữ (A–Z) và khóa dài k ký tự độc lập, thì số khóa khả dĩ: 26^k
 #### 4. Cách phá mã mà không cần khóa

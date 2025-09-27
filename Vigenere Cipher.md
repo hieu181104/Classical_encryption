@@ -53,3 +53,190 @@ IoC ≈ 1/26 ≈ 0.03846
 Có công thức ước lượng m (Friedman formula — dạng xấp xỉ):
 <img width="1592" height="159" alt="image" src="https://github.com/user-attachments/assets/e9eb92f2-e549-4df6-895d-c15ebd7991ed" />
 ### B. Cài đặt
+Em sẽ thực hiện cài đặt chương trình demo phương pháp mã hóa Vigenere Cipher bằng js và html, dưới đây là một số đoạn code chính:
+```html
+  <script>
+    // Utils
+    function isLetter(ch){return /[A-Za-z]/.test(ch)}
+    function mod(n,m){return ((n % m) + m) % m}
+
+    function prepareKey(key, length, mode){
+      if(!key) return null;
+      if(mode === 'letters'){
+        // remove non-letters from key
+        const clean = key.replace(/[^A-Za-z]/g,'');
+        if(clean.length === 0) return null;
+        // map to 0..25
+        const arr = [];
+        for(let i=0;i<length;i++){
+          const ch = clean[i % clean.length];
+          arr.push(ch.toUpperCase().charCodeAt(0) - 65);
+        }
+        return arr;
+      } else {
+        // ascii mode: use full printable ASCII codes 32..126 => modulus 95
+        const clean = key.split('');
+        if(clean.length === 0) return null;
+        const arr = [];
+        for(let i=0;i<length;i++){
+          const code = clean[i % clean.length].charCodeAt(0);
+          // map into 0..94 by shifting 32..126 -> 0..94
+          arr.push(mod(code - 32, 95));
+        }
+        return arr;
+      }
+    }
+
+    function encryptVigenere(plaintext, key, mode, caseHandling){
+      if(!key) return {err:'Key is empty'};
+      if(mode === 'letters'){
+        // Build key array only counting letters of plaintext (so that non-letters don't consume key)
+        const lettersOnly = plaintext.split('').filter(c=>isLetter(c));
+        const keyArr = prepareKey(key, lettersOnly.length, 'letters');
+        if(!keyArr) return {err:'Key must contain letters for Letters-only mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let ch of plaintext){
+          if(isLetter(ch)){
+            const base = (ch === ch.toUpperCase()) ? 65 : 97;
+            const p = ch.toUpperCase().charCodeAt(0) - 65; // use uppercase for shift
+            const k = keyArr[keyIndex++];
+            const c = mod(p + k, 26);
+            let enc = String.fromCharCode(c + base);
+            // case handling: preserve by default; if upper/lower forced, adjust
+            if(caseHandling === 'upper') enc = enc.toUpperCase();
+            if(caseHandling === 'lower') enc = enc.toLowerCase();
+            out += enc;
+          } else {
+            out += ch;
+          }
+        }
+        return {text: out};
+      } else {
+        // ASCII mode; every printable char is encoded; other chars unchanged
+        const printable = [];
+        for(let ch of plaintext){
+          const code = ch.charCodeAt(0);
+          printable.push((code >= 32 && code <= 126) ? true : false);
+        }
+        const printableCount = printable.filter(Boolean).length;
+        const keyArr = prepareKey(key, printableCount, 'ascii');
+        if(!keyArr) return {err:'Key is empty for ASCII mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let i=0;i<plaintext.length;i++){
+          const ch = plaintext[i];
+          const code = ch.charCodeAt(0);
+          if(code >= 32 && code <= 126){
+            const p = code - 32;
+            const k = keyArr[keyIndex++];
+            const c = mod(p + k, 95);
+            out += String.fromCharCode(c + 32);
+          } else {
+            out += ch;
+          }
+        }
+        // case handling for ascii mode: apply if requested
+        if(caseHandling === 'upper') return {text: out.toUpperCase()};
+        if(caseHandling === 'lower') return {text: out.toLowerCase()};
+        return {text: out};
+      }
+    }
+
+    function decryptVigenere(ciphertext, key, mode, caseHandling){
+      if(!key) return {err:'Key is empty'};
+      if(mode === 'letters'){
+        const lettersOnly = ciphertext.split('').filter(c=>isLetter(c));
+        const keyArr = prepareKey(key, lettersOnly.length, 'letters');
+        if(!keyArr) return {err:'Key must contain letters for Letters-only mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let ch of ciphertext){
+          if(isLetter(ch)){
+            const base = (ch === ch.toUpperCase()) ? 65 : 97;
+            const c = ch.toUpperCase().charCodeAt(0) - 65;
+            const k = keyArr[keyIndex++];
+            const p = mod(c - k, 26);
+            let dec = String.fromCharCode(p + base);
+            if(caseHandling === 'upper') dec = dec.toUpperCase();
+            if(caseHandling === 'lower') dec = dec.toLowerCase();
+            out += dec;
+          } else {
+            out += ch;
+          }
+        }
+        return {text: out};
+      } else {
+        const printable = [];
+        for(let ch of ciphertext){
+          const code = ch.charCodeAt(0);
+          printable.push((code >= 32 && code <= 126) ? true : false);
+        }
+        const printableCount = printable.filter(Boolean).length;
+        const keyArr = prepareKey(key, printableCount, 'ascii');
+        if(!keyArr) return {err:'Key is empty for ASCII mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let i=0;i<ciphertext.length;i++){
+          const ch = ciphertext[i];
+          const code = ch.charCodeAt(0);
+          if(code >= 32 && code <= 126){
+            const c = code - 32;
+            const k = keyArr[keyIndex++];
+            const p = mod(c - k, 95);
+            out += String.fromCharCode(p + 32);
+          } else {
+            out += ch;
+          }
+        }
+        if(caseHandling === 'upper') return {text: out.toUpperCase()};
+        if(caseHandling === 'lower') return {text: out.toLowerCase()};
+        return {text: out};
+      }
+    }
+
+    // DOM
+    const inputText = document.getElementById('inputText');
+    const keyInput = document.getElementById('key');
+    const output = document.getElementById('output');
+    const encBtn = document.getElementById('enc');
+    const decBtn = document.getElementById('dec');
+    const copyBtn = document.getElementById('copy');
+    const swapBtn = document.getElementById('swap');
+    const modeSel = document.getElementById('mode');
+    const caseSel = document.getElementById('case');
+
+    encBtn.addEventListener('click', ()=>{
+      const mode = modeSel.value;
+      const caseHandling = caseSel.value;
+      const res = encryptVigenere(inputText.value, keyInput.value, mode, caseHandling);
+      if(res.err) output.textContent = 'Error: ' + res.err;
+      else output.textContent = res.text;
+    });
+
+    decBtn.addEventListener('click', ()=>{
+      const mode = modeSel.value;
+      const caseHandling = caseSel.value;
+      const res = decryptVigenere(inputText.value, keyInput.value, mode, caseHandling);
+      if(res.err) output.textContent = 'Error: ' + res.err;
+      else output.textContent = res.text;
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(output.textContent);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=>copyBtn.textContent = 'Sao chép kết quả',1200);
+      }catch(e){
+        alert('Không thể sao chép. Hãy copy thủ công.');
+      }
+    });
+
+    swapBtn.addEventListener('click', ()=>{
+      const tmp = inputText.value;
+      inputText.value = output.textContent || '';
+      output.textContent = tmp || '';
+    });
+  </script>
+```
+#### Hình ảnh demo

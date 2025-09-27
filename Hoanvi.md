@@ -49,3 +49,194 @@ Hoán vị bảo toàn tần suất ký tự — điều này vừa là điểm 
 
 Ví dụ: Giả sử ciphertext dài ~ several hundred chữ: chạy hill-climbing với khởi tạo ngẫu nhiên perm, điểm đánh giá = log-probability theo trigram tiếng Việt/Anh; thao tác chuyển đổi = hoán đổi hai cột; giữ giải pháp tốt nhất; chạy nhiều lần với restarts. Kỹ thuật này thường hồi phục được hoán vị cột (khóa) và do đó giải mã thành bản rõ có nghĩa.
 ### B. Cài đặt
+Em đã thực hiện demo phương pháp này bằng html+css+js.Dưới đây là một số đoạn code chính:
+```html
+<script>
+function keyOrder(key) {
+  const arr = [];
+  for (let i = 0; i < key.length; ++i) arr.push({ch: key[i], idx: i});
+  arr.sort((a,b) => {
+    if (a.ch < b.ch) return -1;
+    if (a.ch > b.ch) return 1;
+    return a.idx - b.idx;
+  });
+  return arr.map(x => x.idx);
+}
+
+// encrypt: plaintext -> ciphertext
+function encryptColumnar(plaintext, key, padChar='X') {
+  if (!key || key.length === 0) return plaintext;
+  const m = key.length;
+  const L = plaintext.length;
+  const rows = Math.ceil(L / m);
+  // build matrix rows x m and fill row-wise
+  const matrix = Array.from({length: rows}, () => Array.from({length: m}, () => padChar));
+  let pos = 0;
+  for (let r = 0; r < rows; ++r) {
+    for (let c = 0; c < m; ++c) {
+      if (pos < L) matrix[r][c] = plaintext[pos++];
+      else matrix[r][c] = padChar;
+    }
+  }
+  const order = keyOrder(key);
+  let cipher = '';
+  for (let k = 0; k < order.length; ++k) {
+    const c = order[k];
+    for (let r = 0; r < rows; ++r) cipher += matrix[r][c];
+  }
+  return {cipher, matrix, rows};
+}
+
+// decrypt: ciphertext -> plaintext
+function decryptColumnar(ciphertext, key, padChar='X') {
+  if (!key || key.length === 0) return ciphertext;
+  const m = key.length;
+  const L = ciphertext.length;
+  const rows = Math.ceil(L / m);
+  // create empty matrix rows x m
+  const matrix = Array.from({length: rows}, () => Array.from({length: m}, () => ''));
+  const order = keyOrder(key);
+  // Fill columns in the order sequence; allow ciphertext shorter than rows*m
+  let pos = 0;
+  for (let k = 0; k < order.length; ++k) {
+    const c = order[k];
+    for (let r = 0; r < rows; ++r) {
+      if (pos < L) matrix[r][c] = ciphertext[pos++];
+      else matrix[r][c] = padChar; // fallback
+    }
+  }
+  // read row-wise
+  let plain = '';
+  for (let r = 0; r < rows; ++r) {
+    for (let c = 0; c < m; ++c) {
+      plain += matrix[r][c];
+    }
+  }
+  // strip trailing padding characters that were added during encryption
+  while (plain.endsWith(padChar)) plain = plain.slice(0, -1);
+  return {plain, matrix, rows};
+}
+
+// UI wiring
+const inputText = document.getElementById('inputText');
+const outputText = document.getElementById('outputText');
+const keyInput = document.getElementById('keyInput');
+const padInput = document.getElementById('padInput');
+const encryptBtn = document.getElementById('encryptBtn');
+const decryptBtn = document.getElementById('decryptBtn');
+const showMatrixBtn = document.getElementById('showMatrixBtn');
+const matrixWrap = document.getElementById('matrixWrap');
+const matrixArea = document.getElementById('matrixArea');
+const metaInfo = document.getElementById('metaInfo');
+const copyOut = document.getElementById('copyOut');
+const clearAll = document.getElementById('clearAll');
+const exampleBtn = document.getElementById('exampleBtn');
+
+function renderMatrix(matrix) {
+  if (!matrix) { matrixArea.innerHTML = '<div class="small">Không có matrix để hiển thị.</div>'; return; }
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  let html = '<table class="m">';
+  for (let r = 0; r < rows; ++r) {
+    html += '<tr>';
+    for (let c = 0; c < cols; ++c) {
+      const ch = matrix[r][c] === '' ? '&nbsp;' : escapeHtml(matrix[r][c]);
+      html += `<td>${ch}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  matrixArea.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/ /g, '&nbsp;');
+}
+
+encryptBtn.addEventListener('click', ()=> {
+  const pt = inputText.value;
+  const k = keyInput.value;
+  const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+  if (!k || k.length === 0) {
+    alert('Vui lòng nhập khóa (key) trước khi mã hóa.');
+    return;
+  }
+  const {cipher, matrix, rows} = encryptColumnar(pt, k, pad);
+  outputText.value = cipher;
+  metaInfo.textContent = `Đã mã hóa — chiều dài plaintext=${pt.length}, keyLength=${k.length}, rows=${rows}, cipherLength=${cipher.length}`;
+  if (matrixWrap.style.display !== 'none') renderMatrix(matrix);
+});
+
+decryptBtn.addEventListener('click', ()=> {
+  const ct = inputText.value;
+  const k = keyInput.value;
+  const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+  if (!k || k.length === 0) {
+    alert('Vui lòng nhập khóa (key) trước khi giải mã.');
+    return;
+  }
+  const {plain, matrix, rows} = decryptColumnar(ct, k, pad);
+  outputText.value = plain;
+  metaInfo.textContent = `Đã giải mã — chiều dài ciphertext=${ct.length}, keyLength=${k.length}, rows=${rows}, plainLength=${plain.length}`;
+  if (matrixWrap.style.display !== 'none') renderMatrix(matrix);
+});
+
+showMatrixBtn.addEventListener('click', ()=> {
+  if (matrixWrap.style.display === 'none') {
+    matrixWrap.style.display = 'block';
+    showMatrixBtn.textContent = 'Ẩn matrix';
+    // try to render last used (prefer output if exists)
+    const last = outputText.value || inputText.value;
+    const k = keyInput.value;
+    const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+    if (k && k.length > 0) {
+      // if output exists, try to interpret as ciphertext and show matrix for decrypt attempt
+      if (outputText.value) {
+        const res = decryptColumnar(outputText.value, k, pad);
+        renderMatrix(res.matrix);
+      } else {
+        const res = encryptColumnar(inputText.value, k, pad);
+        renderMatrix(res.matrix);
+      }
+    } else {
+      matrixArea.innerHTML = '<div class="small">Nhập khóa để xem matrix.</div>';
+    }
+  } else {
+    matrixWrap.style.display = 'none';
+    showMatrixBtn.textContent = 'Hiện/Ẩn matrix';
+  }
+});
+
+copyOut.addEventListener('click', async ()=> {
+  try {
+    await navigator.clipboard.writeText(outputText.value || '');
+    metaInfo.textContent = 'Đã copy kết quả vào clipboard.';
+  } catch(e) {
+    metaInfo.textContent = 'Không thể copy — trình duyệt không cho phép.';
+  }
+});
+
+clearAll.addEventListener('click', ()=> {
+  inputText.value = '';
+  outputText.value = '';
+  keyInput.value = '';
+  padInput.value = 'X';
+  metaInfo.textContent = 'Đã clear.';
+  matrixArea.innerHTML = '';
+});
+
+exampleBtn.addEventListener('click', ()=> {
+  inputText.value = 'WE ARE DISCOVERED. FLEE AT ONCE!';
+  keyInput.value = 'ZEBRAS';
+  padInput.value = 'X';
+  metaInfo.textContent = 'Ví dụ mẫu đã nạp. Nhấn "Mã hóa" để xem kết quả.';
+});
+
+// keyboard: Ctrl+Enter to run encrypt
+inputText.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    encryptBtn.click();
+  }
+});
+</script>
+```

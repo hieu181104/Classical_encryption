@@ -48,10 +48,11 @@ Brute-force (thử tất cả cặp (a,b)):
 - Tại thao tác tự động, dùng tiêu chí như: có những từ tiếng Việt/Anh phổ biến, hoặc kiểm tra xem ký tự có thuộc bảng in được, hoặc tính điểm chi-squared/độ tương đồng tần suất so với ngôn ngữ.
 - Độ phức tạp: 𝑂(𝜑(𝑚)⋅𝑚⋅𝐿) với 𝐿 là chiều dài văn bản (thực tế rất nhỏ). Với m=26, chỉ 312 thử.
 ### B. Cài đặt
+#### Demo HTML+CSS+JS
 - Em thực hiện demo một file HTML + JavaScript đơn giản, có giao diện nhập chuỗi, chọn khóa a,b rồi bấm Mã hóa hoặc Giải mã để xem kết quả ngay, có thể nhập cả chữ thường, chữ hoa, số và ký tự đặc biệt. Thay vì chỉ làm việc với bảng chữ cái A–Z (26 ký tự), ta sẽ coi tất cả ký tự in được trong bảng ASCII (từ mã 32 → 126, tổng cộng 95 ký tự) đều tham gia mã hóa.
 - Ngoài ra, em bổ sung thêm tính năng kiểm tra và gợi ý các giá trị a hợp lệ (những số nguyên tố cùng nhau với 95) ngay trên giao diện. Khi nhập khóa a không hợp lệ, chương trình sẽ báo lỗi và hiển thị danh sách các giá trị a có thể dùng.
 
-#### Một số đoạn code chính trong chương trình cài đặt:
+#### Một số đoạn code chính trong demo:
 ```html
   <script>
     const CHAR_START = 32; // khoảng trắng
@@ -169,4 +170,6 @@ Copy bản mã vừa thu được rồi giải mã để kiểm tra chuỗi có 
 Trong trường hợp nhập khóa a không hợp lệ, hệ thống sẽ cảnh báo và đề xuất:
 <img width="3071" height="1817" alt="image" src="https://github.com/user-attachments/assets/8bc45b5f-39ae-41fa-91f0-7e063753bb20" />
 
-#### Trên đây là toàn bộ bài làm của em. Tóm lại, Affine Cipher là một phương pháp mã hóa cổ điển dựa trên công thức tuyến tính trong số học modulo. Nó là bước phát triển cao hơn so với Caesar Cipher nhưng vẫn không đủ an toàn với công nghệ hiện nay.
+#### Demo C++
+
+#### Tóm lại, Affine Cipher là một phương pháp mã hóa cổ điển dựa trên công thức tuyến tính trong số học modulo. Nó là bước phát triển cao hơn so với Caesar Cipher nhưng vẫn không đủ an toàn với công nghệ hiện nay.

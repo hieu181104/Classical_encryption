@@ -49,6 +49,7 @@ Hoán vị bảo toàn tần suất ký tự — điều này vừa là điểm 
 
 Ví dụ: Giả sử ciphertext dài ~ several hundred chữ: chạy hill-climbing với khởi tạo ngẫu nhiên perm, điểm đánh giá = log-probability theo trigram tiếng Việt/Anh; thao tác chuyển đổi = hoán đổi hai cột; giữ giải pháp tốt nhất; chạy nhiều lần với restarts. Kỹ thuật này thường hồi phục được hoán vị cột (khóa) và do đó giải mã thành bản rõ có nghĩa.
 ### B. Cài đặt
+#### Demo JS+CSS+HTML
 Em đã thực hiện demo phương pháp này bằng html+css+js.Dưới đây là một số đoạn code chính:
 ```html
 <script>
@@ -240,3 +241,14 @@ inputText.addEventListener('keydown', (e) => {
 });
 </script>
 ```
+#### Hình ảnh demo
+##### Mã hóa:
+<img width="3071" height="1817" alt="Screenshot 2025-09-27 101947" src="https://github.com/user-attachments/assets/397c6593-c196-401e-9bda-8505b7fc04a3" />
+
+##### Giải mã:
+<img width="3071" height="1817" alt="Screenshot 2025-09-27 102032" src="https://github.com/user-attachments/assets/52788a21-13ec-43fa-a65d-a8be02ad386e" />
+
+Hiển thị matrix:
+<img width="1140" height="1350" alt="Screenshot 2025-09-27 102117" src="https://github.com/user-attachments/assets/c316179e-f6f2-47e7-8ea2-c3be7535af1f" />
+
+#### Demo code C++:

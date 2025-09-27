@@ -41,13 +41,11 @@ Nhận xét: Vì n! tăng rất nhanh, với n lớn không gian khóa rất l�
 #### 4. Cách phá mã (mà không cần khóa)
 Hoán vị bảo toàn tần suất ký tự — điều này vừa là điểm yếu, vừa tạo nền tảng cho tấn công. Dưới đây là một số chiến lược phá mã không cần khóa:
 ##### Phân tích thống kê / sử dụng crib (known plaintext / probable words)
-vì tần suất chữ cái không đổi, ta có thể dùng cribs (đoán từ xuất hiện như "THE", "AND", tên riêng) và thử căn chỉnh crib vào nhiều vị trí của ciphertext để suy ra hoán vị cột/offset hợp lý.
-
-“Crib-dragging”: thử dịch/hoán vị sao cho xuất hiện từ có nghĩa ở vị trí nào đó.
+- Vì tần suất chữ cái không đổi, ta có thể dùng cribs (đoán từ xuất hiện như "THE", "AND", tên riêng) và thử căn chỉnh crib vào nhiều vị trí của ciphertext để suy ra hoán vị cột/offset hợp lý.
+- “Crib-dragging”: thử dịch/hoán vị sao cho xuất hiện từ có nghĩa ở vị trí nào đó.
 ##### Hill-climbing / Simulated annealing / Genetic algorithms
-Các thuật toán tìm kiếm heuristics (hill-climbing) dùng điểm số ngôn ngữ (log-likelihood theo mô hình n-gram) để đánh giá một giải mã tạm thời; sau đó thay đổi perm (swap cột, hoán vị) để cải thiện điểm.
-
-Phương pháp này rất hiệu quả cho columnar transposition hoặc hoán vị khối lớn khi brute-force không khả thi. Nhiều công cụ mật mã cổ điển nổi tiếng dùng hill-climbing để phá transposition.
+- Các thuật toán tìm kiếm heuristics (hill-climbing) dùng điểm số ngôn ngữ (log-likelihood theo mô hình n-gram) để đánh giá một giải mã tạm thời; sau đó thay đổi perm (swap cột, hoán vị) để cải thiện điểm.
+- Phương pháp này rất hiệu quả cho columnar transposition hoặc hoán vị khối lớn khi brute-force không khả thi. Nhiều công cụ mật mã cổ điển nổi tiếng dùng hill-climbing để phá transposition.
 
 Ví dụ: Giả sử ciphertext dài ~ several hundred chữ: chạy hill-climbing với khởi tạo ngẫu nhiên perm, điểm đánh giá = log-probability theo trigram tiếng Việt/Anh; thao tác chuyển đổi = hoán đổi hai cột; giữ giải pháp tốt nhất; chạy nhiều lần với restarts. Kỹ thuật này thường hồi phục được hoán vị cột (khóa) và do đó giải mã thành bản rõ có nghĩa.
 ### B. Cài đặt

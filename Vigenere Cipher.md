@@ -17,25 +17,23 @@ Công thức: <strong>Ci​=(Pi​+Ki​) mod 26</strong>
 
 Trong đó: Ci là kí tự mã hóa, Pi là vị trí chữ cái của bản rõ, Ki là vị trí chữ cái của khóa.
 ```python
-MOD = 95   // printable chars count
-BASE = 32
-function encrypt_ascii(plaintext, key):
-    if key is empty: error
-    key_chars = key (as-is)
-    key_arr = [ (ord(kc) - BASE) mod MOD for kc in repeated key to length of printable chars in plaintext ]
+function encrypt_letters_only(plaintext, key):
+    if key has no letters: error
+    key_clean = key remove non-letters, uppercase
     key_index = 0
-    result = ""
+    ciphertext = ""
     for ch in plaintext:
-        code = ord(ch)
-        if 32 <= code <= 126:
-            p = code - BASE
-            k = key_arr[key_index]
-            c = (p + k) % MOD
-            result += chr(c + BASE)
-            key_index += 1
+        if ch is letter:
+            base = 'A' if ch is uppercase else 'a'
+            p = ord(uppercase(ch)) - ord('A')        // 0..25
+            k = ord(key_clean[key_index % len(key_clean)]) - ord('A')
+            c = (p + k) % 26
+            out_ch = chr(c + ord(base))
+            ciphertext += out_ch
+            key_index += 1        // only advance when plaintext char is letter
         else:
-            result += ch
-    return result
+            ciphertext += ch
+    return ciphertext
 ```
 ##### Giải mã:
 Thực hiện phép dịch ngược lại: <strong>Pi​=(Ci​−Ki​+26) mod 26</strong>

@@ -154,5 +154,148 @@ Thực hiện giải mã chuỗi vừa mã hóa để kiểm tra xem kết quả
 <img width="3071" height="1820" alt="Screenshot 2025-09-22 213622" src="https://github.com/user-attachments/assets/6255886e-57eb-4df8-934b-d52b245b07a5" />
 
 #### Demo C++:
+##### Một số đoạn code chính:
+```cpp
+class PlayfairCipher {
+private:
+    std::vector<std::vector<char>> matrix; // 5x5 matrix
+    std::string prepareKey(const std::string& key) {
+        std::string cleanedKey;
+        for (char c : key) {
+            if (std::isalpha(c)) {
+                cleanedKey += std::toupper(c) == 'J' ? 'I' : std::toupper(c);
+            }
+        }
+        return cleanedKey;
+    }
+
+    void generateMatrix(const std::string& key) {
+        matrix = std::vector<std::vector<char>>(5, std::vector<char>(5));
+        std::string uniqueKey = prepareKey(key);
+        std::vector<bool> used(26, false);
+        used['J' - 'A'] = true; // Treat J as I
+
+        // Fill matrix with key
+        int row = 0, col = 0;
+        for (char c : uniqueKey) {
+            if (!used[c - 'A']) {
+                matrix[row][col] = c;
+                used[c - 'A'] = true;
+                col++;
+                if (col == 5) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+
+        // Fill remaining matrix with alphabet
+        for (char c = 'A'; c <= 'Z'; c++) {
+            if (!used[c - 'A'] && c != 'J') {
+                matrix[row][col] = c;
+                col++;
+                if (col == 5) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+    }
+
+    std::string prepareText(const std::string& text) {
+        std::string result;
+        for (char c : text) {
+            if (std::isalpha(c)) {
+                result += std::toupper(c) == 'J' ? 'I' : std::toupper(c);
+            }
+        }
+
+        // Insert X between duplicate letters in a digraph
+        std::string formatted;
+        for (size_t i = 0; i < result.length(); i++) {
+            formatted += result[i];
+            if (i + 1 < result.length() && result[i] == result[i + 1]) {
+                formatted += 'X';
+            }
+        }
+        if (formatted.length() % 2 != 0) {
+            formatted += 'X'; // Pad with X if odd length
+        }
+        return formatted;
+    }
+
+    void findPosition(char c, int& row, int& col) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (matrix[i][j] == c) {
+                    row = i;
+                    col = j;
+                    return;
+                }
+            }
+        }
+    }
+
+public:
+    PlayfairCipher(const std::string& key) {
+        generateMatrix(key);
+    }
+
+    std::string encrypt(const std::string& plaintext) {
+        std::string formattedText = prepareText(plaintext);
+        std::string ciphertext;
+
+        for (size_t i = 0; i < formattedText.length(); i += 2) {
+            int row1, col1, row2, col2;
+            findPosition(formattedText[i], row1, col1);
+            findPosition(formattedText[i + 1], row2, col2);
+
+            if (row1 == row2) {
+                // Same row: shift right
+                ciphertext += matrix[row1][(col1 + 1) % 5];
+                ciphertext += matrix[row2][(col2 + 1) % 5];
+            } else if (col1 == col2) {
+                // Same column: shift down
+                ciphertext += matrix[(row1 + 1) % 5][col1];
+                ciphertext += matrix[(row2 + 1) % 5][col2];
+            } else {
+                // Rectangle: swap columns
+                ciphertext += matrix[row1][col2];
+                ciphertext += matrix[row2][col1];
+            }
+        }
+        return ciphertext;
+    }
+
+    std::string decrypt(const std::string& ciphertext) {
+        std::string formattedText = prepareText(ciphertext);
+        std::string plaintext;
+
+        for (size_t i = 0; i < formattedText.length(); i += 2) {
+            int row1, col1, row2, col2;
+            findPosition(formattedText[i], row1, col1);
+            findPosition(formattedText[i + 1], row2, col2);
+
+            if (row1 == row2) {
+                // Same row: shift left
+                plaintext += matrix[row1][(col1 - 1 + 5) % 5];
+                plaintext += matrix[row2][(col2 - 1 + 5) % 5];
+            } else if (col1 == col2) {
+                // Same column: shift up
+                plaintext += matrix[(row1 - 1 + 5) % 5][col1];
+                plaintext += matrix[(row2 - 1 + 5) % 5][col2];
+            } else {
+                // Rectangle: swap columns
+                plaintext += matrix[row1][col2];
+                plaintext += matrix[row2][col1];
+            }
+        }
+        return plaintext;
+    }
+};
+```
+##### Hình ảnh demo:
+<img width="2343" height="1220" alt="Screenshot 2025-09-27 161754" src="https://github.com/user-attachments/assets/b54a46b7-3cf9-43a4-9460-5c3b8ac5464f" />
+<img width="2337" height="1221" alt="Screenshot 2025-09-27 161841" src="https://github.com/user-attachments/assets/b97cb45a-4c75-4184-a56b-dfd7618e281a" />
 
 #### Như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.

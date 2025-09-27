@@ -171,5 +171,58 @@ Trong trường hợp nhập khóa a không hợp lệ, hệ thống sẽ cảnh
 <img width="3071" height="1817" alt="image" src="https://github.com/user-attachments/assets/8bc45b5f-39ae-41fa-91f0-7e063753bb20" />
 
 #### Demo C++
+##### Một số đoạn code chính:
+```cpp
+int gcd(int a, int b) {
+    while (b) {
+        a %= b;
+        std::swap(a, b);
+    }
+    return a;
+}
+
+std::string encrypt(const std::string& plaintext, int a, int b) {
+    std::string result;
+    for (char c : plaintext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            int x = c - base;
+            result += static_cast<char>((a * x + b) % 26 + base);
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+
+std::string decrypt(const std::string& ciphertext, int a, int b) {
+    std::string result;
+    // Find modular multiplicative inverse of a
+    int a_inv = -1;
+    for (int i = 0; i < 26; ++i) {
+        if ((a * i) % 26 == 1) {
+            a_inv = i;
+            break;
+        }
+    }
+    if (a_inv == -1) {
+        return "Error: Invalid 'a' value (must be coprime with 26).";
+    }
+
+    for (char c : ciphertext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            int y = c - base;
+            result += static_cast<char>((a_inv * (y - b + 26)) % 26 + base);
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+```
+##### Hình ảnh demo:
+<img width="2346" height="1222" alt="Screenshot 2025-09-27 160820" src="https://github.com/user-attachments/assets/da6239fd-b749-415a-b80a-3f813166f45f" />
+<img width="2347" height="1209" alt="Screenshot 2025-09-27 160914" src="https://github.com/user-attachments/assets/c03d844d-c1c8-48c5-9684-36853cdbacb0" />
 
 #### Tóm lại, Affine Cipher là một phương pháp mã hóa cổ điển dựa trên công thức tuyến tính trong số học modulo. Nó là bước phát triển cao hơn so với Caesar Cipher nhưng vẫn không đủ an toàn với công nghệ hiện nay.

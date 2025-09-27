@@ -208,5 +208,39 @@ Bây giờ chọn lại file vừa tải xuống để thực hiện giải mã,
 <img width="3071" height="1820" alt="image" src="https://github.com/user-attachments/assets/333efe1a-c22d-4a18-9d99-9bac0628bf09" />
 
 #### Demo C++
+Ở chương trình này, em chỉ demo mã hóa/ giải mã chuỗi ký tự:
+##### Một số đoạn code chính:
+```cpp
+std::string encrypt(const std::string& plaintext, int shift) {
+    std::string result;
+    shift = shift % 26; // Normalize shift to 0-25
+    for (char c : plaintext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            result += static_cast<char>((c - base + shift) % 26 + base);
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+
+std::string decrypt(const std::string& ciphertext, int shift) {
+    std::string result;
+    shift = shift % 26; // Normalize shift to 0-25
+    for (char c : ciphertext) {
+        if (std::isalpha(c)) {
+            char base = std::isupper(c) ? 'A' : 'a';
+            result += static_cast<char>((c - base - shift + 26) % 26 + base);
+        } else {
+            result += c; // Non-alphabetic characters remain unchanged
+        }
+    }
+    return result;
+}
+```
+##### Hình ảnh demo:
+<img width="2338" height="1209" alt="Screenshot 2025-09-27 161331" src="https://github.com/user-attachments/assets/e8998428-eabc-482d-842e-6274fc83c633" />
+<img width="2342" height="1215" alt="Screenshot 2025-09-27 161410" src="https://github.com/user-attachments/assets/adfb30b3-6239-4776-9d7d-68e4a7c0c450" />
 
 ### -------------------------------------------------HẾT-------------------------------------------------

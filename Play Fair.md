@@ -6,15 +6,13 @@ Bài tập về các phương pháp mã hóa cổ điển
 #### Lớp: K58KTP
 ## Phương pháp mã hóa Playfair Cipher
 ### A. Lý thuyết
-#### 1. Khái niệm
-Playfair cipher được Charles Wheatstone phát minh năm 1854, nhưng được đặt theo tên của Lord Playfair (người đã quảng bá nó). Đây là một trong những mã khối (block cipher) cổ điển, hoạt động trên cặp chữ cái (digraphs) thay vì từng chữ cái riêng lẻ.
-
-So với Caesar hay Affine (mã hóa trên từng ký tự), Playfair an toàn hơn vì khó phân tích tần suất.
+#### 1. Tên gọi
+- Playfair cipher được Charles Wheatstone phát minh năm 1854, nhưng được đặt theo tên của Lord Playfair (người đã quảng bá nó). Đây là một trong những mã khối (block cipher) cổ điển, hoạt động trên cặp chữ cái (digraphs) thay vì từng chữ cái riêng lẻ.
+- So với Caesar hay Affine (mã hóa trên từng ký tự), Playfair an toàn hơn vì khó phân tích tần suất.
 #### 2. Nguyên tắc chính của phương pháp Playfair
-Playfair sử dụng một bảng 5x5 chứa 25 chữ cái tiếng Anh (gộp I và J vào một ô).
-
-Cách tạo bảng: Viết khóa vào bảng theo thứ tự, bỏ trùng lặp. Sau đó điền các chữ cái còn thiếu của bảng chữ cái.
-#### 3. Quy tắc mã hóa và giải mã
+- Playfair sử dụng một bảng 5x5 chứa 25 chữ cái tiếng Anh (gộp I và J vào một ô).
+- Cách tạo bảng: Viết khóa vào bảng theo thứ tự, bỏ trùng lặp. Sau đó điền các chữ cái còn thiếu của bảng chữ cái.
+#### 3. Thuật toán mã hóa và giải mã
 ##### Mã hóa
 Chia bản rõ thành các cặp chữ:
 - Nếu hai chữ cái trùng nhau ( Ví dụ: MEET -> ME EX T) thì thêm chữ X vào giữa.
@@ -28,15 +26,26 @@ Giải mã ngược lại:
 - Cùng hàng: thay bằng chữ bên trái.
 - Cùng cột: thay bằng chữ bên trên.
 - Khác hàng, khác cột: áp dụng quy tắc chữ nhật như khi mã hóa.
-#### 4. Ưu điểm và nhược điểm
-##### Ưu điểm
-- Khó phân tích tần suất vì mã hóa theo cặp, không theo từng chữ.
-- Dễ dùng với giấy bút.
-##### Nhược điểm
-- Vẫn có thể bị phá bằng phân tích tần suất trên digraph (ví dụ “TH”, “ER”, “ON”…).
-- Ngày nay không còn an toàn với máy tính, chỉ dùng trong nghiên cứu lịch sử mật mã.
+#### 4. Không gian khóa
+Về mặt lý thuyết, bảng 5×5 là một hoán vị của 25 chữ cái → có 25! (25 factorial) ma trận khác nhau.
+
+25! ≈ 1.5511210043 × 10^25.
+
+Tính bằng bit: log2(25!) ≈ 83.7 bits.
+
+Trong thực tế khóa mạnh phụ thuộc lớn vào cách người dùng tạo khóa (passphrase dài & ngẫu nhiên → tốt hơn).
+#### 5. Cách phá mã (mà không cần khóa)
+###### Brute-force toàn bộ không gian
+- Thử tất cả 25! ≈ 1.55e25 khóa là không thực tế bằng brute force thuần.
+- Tuy nhiên nếu khóa giới hạn bởi passphrase ngắn (ví dụ người dùng gõ 6 chữ cái), thì không gian thử nghiệm nhỏ hơn nhiều — có thể thử dò passphrase nếu biết cấu trúc.
+###### Phân tích tần suất digraph (thủ công / bán tự động)
+- Thu thập tần suất digraph trong bản mã (mật văn): đếm số lần xuất hiện của mỗi cặp hai chữ.
+- So sánh bảng tần suất với thống kê digraph tiếng mục tiêu (ví dụ tiếng Anh hay tiếng Việt): digraph phổ biến như TH, HE, IN, ER, AN (tiếng Anh) — trong Playfair, những digraph này sẽ bị ánh xạ thành một số cặp nhất định.
+- Dò các ánh xạ khả dĩ dựa trên tần suất: ví dụ digraph mật văn có tần suất cao có thể tương ứng với TH/HE...
+- Dùng suy luận về các cặp chữ xuất hiện cùng lúc (ví dụ các cặp lặp lại), xác lập từng phần của bảng 5×5 dần dần.
 ### B. Cài đặt
-Em sẽ cài đặt demo Playfair Cipher bằng JavaScript với giao diện đơn giản: nhập bản rõ + khóa → bấm nút để mã hóa hoặc giải mã.
+#### Demo HTML+CSS+JS
+Em sẽ cài đặt demo Playfair Cipher với giao diện đơn giản: nhập bản rõ + khóa → bấm nút để mã hóa hoặc giải mã.
 #### Một số đoạn code chính trong chương trình demo:
 ```html
   <script>
@@ -143,4 +152,7 @@ Nhập khóa và chuỗi chữ để Mã hóa:
 
 Thực hiện giải mã chuỗi vừa mã hóa để kiểm tra xem kết quả có giống bản rõ không:
 <img width="3071" height="1820" alt="Screenshot 2025-09-22 213622" src="https://github.com/user-attachments/assets/6255886e-57eb-4df8-934b-d52b245b07a5" />
-#### Em đã thực hiện xong việc demo phương pháp Playfair, như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.
+
+#### Demo C++:
+
+#### Như vậy Playfair Cipher là một trong những phương pháp mã hóa cổ điển quan trọng, ra đời sớm và được xem là bước tiến so với các hệ đơn bảng như Caesar hay Affine. Với cách mã hóa theo cặp ký tự, Playfair giúp hạn chế phân tích tần suất, tăng độ an toàn. Tuy nhiên, ngày nay nó không còn đủ mạnh để bảo mật thông tin.

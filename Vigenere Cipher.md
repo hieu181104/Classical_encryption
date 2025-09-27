@@ -330,6 +330,7 @@ std::string decrypt(const std::string& ciphertext, const std::string& key) {
 }
 ```
 #### Hình ảnh demo:
-
+<img width="2342" height="1218" alt="Screenshot 2025-09-27 160016" src="https://github.com/user-attachments/assets/80fceb94-4626-4329-a5af-c0fd24ab0873" />
+<img width="2342" height="1216" alt="Screenshot 2025-09-27 160108" src="https://github.com/user-attachments/assets/2dd3e150-4ec2-44a4-b9fd-e331fa270703" />
 
 #### Trên đây là phần demo của em về phương pháp Vigenere Cipher trong bảo mật thông tin. Như vậy bằng việc sử dụng khóa gồm nhiều ký tự, Vigenere Cipher giúp tăng tính bảo mật hơn so với các phương pháp đơn bảng.

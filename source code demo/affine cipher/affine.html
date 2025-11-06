@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affine Cipher - Mã hóa Affine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#1e40af',
+            success: '#10b981',
+            error: '#ef4444',
+            warning: '#f59e0b'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .input-focus:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-white mb-2">🔐 Affine Cipher</h1>
+      <p class="text-blue-100 text-lg">Mã hóa và giải mã với Affine Cipher - Hỗ trợ 95 ký tự ASCII</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Input Section -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-white font-semibold mb-3 text-lg">
+              📝 Chuỗi nhập vào
+            </label>
+            <textarea 
+              id="inputText" 
+              class="w-full p-4 rounded-xl border-2 border-gray-300 input-focus transition-all duration-200 resize-none h-32 text-gray-800"
+              placeholder="Nhập văn bản cần mã hóa hoặc giải mã..."
+            ></textarea>
+          </div>
+
+          <!-- Key Inputs -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-white font-semibold mb-2">
+                🔑 Khóa a
+              </label>
+              <input 
+                type="number" 
+                id="keyA" 
+                value="7" 
+                oninput="checkKeyA()"
+                class="w-full p-3 rounded-lg border-2 border-gray-300 input-focus transition-all duration-200 text-gray-800"
+              >
+              <p class="text-xs text-blue-100 mt-1">Phải nguyên tố cùng nhau với 95</p>
+            </div>
+            <div>
+              <label class="block text-white font-semibold mb-2">
+                🔑 Khóa b
+              </label>
+              <input 
+                type="number" 
+                id="keyB" 
+                value="3"
+                class="w-full p-3 rounded-lg border-2 border-gray-300 input-focus transition-all duration-200 text-gray-800"
+              >
+              <p class="text-xs text-blue-100 mt-1">Có thể là bất kỳ số nguyên nào</p>
+            </div>
+          </div>
+
+          <!-- Key Validation -->
+          <div id="keyAHint" class="p-3 rounded-lg min-h-[60px] flex items-center"></div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <button 
+              onclick="encrypt()" 
+              class="flex-1 bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              🔒 Mã hóa
+            </button>
+            <button 
+              onclick="decrypt()" 
+              class="flex-1 bg-success hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              🔓 Giải mã
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-white font-semibold mb-3 text-lg">
+              📤 Kết quả
+            </label>
+            <div 
+              id="output" 
+              class="w-full p-4 rounded-xl bg-white/10 border-2 border-white/20 min-h-[200px] text-white font-semibold text-sm whitespace-pre-wrap break-all"
+            >
+              Kết quả sẽ hiển thị ở đây
+            </div>
+          </div>
+
+          <!-- Info Panel -->
+          <div class="bg-white/10 rounded-xl p-4 border border-white/20">
+            <h3 class="text-white font-semibold mb-2">ℹ️ Thông tin thuật toán</h3>
+            <ul class="text-blue-100 text-sm space-y-1">
+              <li>• Hỗ trợ 95 ký tự ASCII (từ space đến ~)</li>
+              <li>• Công thức mã hóa: C = (aP + b) mod 95</li>
+              <li>• Công thức giải mã: P = a⁻¹(C - b) mod 95</li>
+              <li>• Khóa 'a' phải nguyên tố cùng nhau với 95</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-blue-100">
+      <p class="text-sm">Affine Cipher Demo - Hỗ trợ chữ cái, ký tự đặc biệt và số</p>
+    </div>
+  </div>
+
+  <script>
+    const CHAR_START = 32; // khoảng trắng
+    const CHAR_END = 126;  // ~
+    const CHAR_RANGE = CHAR_END - CHAR_START + 1; // 95 ký tự
+
+    // gcd
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    // nghịch đảo modulo
+    function modInverse(a, m) {
+      a = ((a % m) + m) % m;
+      for (let x = 1; x < m; x++) {
+        if ((a * x) % m === 1) return x;
+      }
+      return null;
+    }
+
+    // liệt kê tất cả giá trị a hợp lệ
+    function validAValues() {
+      let list = [];
+      for (let i = 1; i < CHAR_RANGE; i++) {
+        if (gcd(i, CHAR_RANGE) === 1) list.push(i);
+      }
+      return list;
+    }
+
+    function checkKeyA() {
+      let a = parseInt(document.getElementById("keyA").value);
+      let hintDiv = document.getElementById("keyAHint");
+
+      if (isNaN(a)) {
+        hintDiv.innerHTML = "<div class='bg-error/20 border border-error/30 rounded-lg p-3'><span class='text-red-200 font-medium'>⚠️ Vui lòng nhập số cho khóa a</span></div>";
+        return;
+      }
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        hintDiv.innerHTML = "<div class='bg-error/20 border border-error/30 rounded-lg p-3'>" +
+          "<span class='text-red-200 font-medium'>❌ a = " + a + " không hợp lệ</span><br>" +
+          "<span class='text-red-100 text-sm'>👉 Các giá trị a hợp lệ: " + validAValues().slice(0, 20).join(", ") + "...</span></div>";
+      } else {
+        hintDiv.innerHTML = "<div class='bg-success/20 border border-success/30 rounded-lg p-3'>" +
+          "<span class='text-green-200 font-medium'>✅ Hợp lệ (gcd(" + a + ", " + CHAR_RANGE + ") = 1)</span></div>";
+      }
+    }
+
+    function encrypt() {
+      let text = document.getElementById("inputText").value;
+      let a = parseInt(document.getElementById("keyA").value);
+      let b = parseInt(document.getElementById("keyB").value);
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Khóa 'a' không hợp lệ!</div>";
+        return;
+      }
+
+      let result = "";
+      for (let char of text) {
+        let code = char.charCodeAt(0);
+        if (code >= CHAR_START && code <= CHAR_END) {
+          let P = code - CHAR_START;
+          let C = (a * P + b) % CHAR_RANGE;
+          result += String.fromCharCode(C + CHAR_START);
+        } else {
+          result += char;
+        }
+      }
+      document.getElementById("output").innerHTML = "<div class='text-blue-200 font-semibold mb-2'>🔒 Bản mã:</div><div class='text-white'>" + result + "</div>";
+    }
+
+    function decrypt() {
+      let text = document.getElementById("inputText").value;
+      let a = parseInt(document.getElementById("keyA").value);
+      let b = parseInt(document.getElementById("keyB").value);
+
+      if (gcd(a, CHAR_RANGE) !== 1) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Khóa 'a' không hợp lệ!</div>";
+        return;
+      }
+
+      let a_inv = modInverse(a, CHAR_RANGE);
+      if (a_inv === null) {
+        document.getElementById("output").innerHTML = "<div class='text-red-300 font-semibold'>❌ Lỗi: Không tìm được nghịch đảo modulo!</div>";
+        return;
+      }
+
+      let result = "";
+      for (let char of text) {
+        let code = char.charCodeAt(0);
+        if (code >= CHAR_START && code <= CHAR_END) {
+          let C = code - CHAR_START;
+          let P = (a_inv * (C - b + CHAR_RANGE)) % CHAR_RANGE;
+          result += String.fromCharCode(P + CHAR_START);
+        } else {
+          result += char;
+        }
+      }
+      document.getElementById("output").innerHTML = "<div class='text-green-200 font-semibold mb-2'>🔓 Bản rõ:</div><div class='text-white'>" + result + "</div>";
+    }
+
+    // hiển thị gợi ý ngay khi load
+    window.onload = checkKeyA;
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playfair Cipher Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .input-focus:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    .btn-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen gradient-bg">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2">🔐 Playfair Cipher</h1>
+        <p class="text-blue-100 text-lg">Mã hóa và giải mã văn bản với thuật toán Playfair</p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+        <!-- Key Input -->
+        <div class="mb-6">
+          <label class="block text-white font-semibold mb-3 text-lg">
+            🔑 Khóa (Key)
+          </label>
+          <input 
+            type="text" 
+            id="key" 
+            placeholder="Nhập khóa"
+            class="w-full px-4 py-3 rounded-xl border-2 border-blue-300 focus:border-blue-500 focus:outline-none transition-all duration-300 input-focus bg-white/90 text-gray-800 font-medium"
+          >
+        </div>
+
+        <!-- Input Text -->
+        <div class="mb-6">
+          <label class="block text-white font-semibold mb-3 text-lg">
+            📝 Chuỗi đầu vào
+          </label>
+          <textarea 
+            id="inputText" 
+            placeholder="Nhập bản rõ hoặc bản mã..."
+            rows="4"
+            class="w-full px-4 py-3 rounded-xl border-2 border-blue-300 focus:border-blue-500 focus:outline-none transition-all duration-300 input-focus bg-white/90 text-gray-800 font-medium resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <button 
+            onclick="encrypt()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 btn-hover flex items-center justify-center gap-2"
+          >
+            🔒 Mã hóa
+          </button>
+          <button 
+            onclick="decrypt()"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 btn-hover flex items-center justify-center gap-2"
+          >
+            🔓 Giải mã
+          </button>
+        </div>
+
+        <!-- Result Section -->
+        <div class="bg-white/10 rounded-xl p-6 border border-white/20">
+          <label class="block text-white font-semibold mb-3 text-lg">
+            ✨ Kết quả
+          </label>
+          <textarea 
+            id="outputText" 
+            readonly
+            rows="4"
+            class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-blue-50 text-gray-800 font-mono text-lg resize-none focus:outline-none"
+            placeholder="Kết quả sẽ hiển thị ở đây..."
+          ></textarea>
+        </div>
+
+        <!-- Info Section -->
+        <div class="mt-6 bg-blue-900/30 rounded-xl p-4 border border-blue-400/30">
+          <h3 class="text-white font-semibold mb-2">💡 Hướng dẫn sử dụng:</h3>
+          <ul class="text-blue-100 text-sm space-y-1">
+            <li>• Nhập khóa bất kỳ (chỉ chứa chữ cái)</li>
+            <li>• Nhập văn bản cần mã hóa/giải mã</li>
+            <li>• Chọn "Mã hóa" để mã hóa hoặc "Giải mã" để giải mã</li>
+            <li>• Thuật toán tự động xử lý J→I và thêm X khi cần</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function generateMatrix(key) {
+      key = key.toUpperCase().replace(/J/g, "I").replace(/[^A-Z]/g, "");
+      let seen = new Set();
+      let matrix = [];
+      let alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // I/J gộp chung
+      let combined = key + alphabet;
+
+      for (let ch of combined) {
+        if (!seen.has(ch)) {
+          seen.add(ch);
+          matrix.push(ch);
+        }
+      }
+      return matrix; // 25 ký tự
+    }
+
+    function preprocessText(text, forEncrypt = true) {
+      text = text.toUpperCase().replace(/J/g, "I").replace(/[^A-Z]/g, "");
+      if (!forEncrypt) return text;
+
+      let result = "";
+      for (let i = 0; i < text.length; i++) {
+        let a = text[i];
+        let b = text[i + 1] || "";
+        if (a === b) {
+          result += a + "X";
+        } else {
+          if (b) {
+            result += a + b;
+            i++;
+          } else {
+            result += a + "X";
+          }
+        }
+      }
+      return result;
+    }
+
+    function findPos(matrix, ch) {
+      let index = matrix.indexOf(ch);
+      return [Math.floor(index / 5), index % 5];
+    }
+
+    function encrypt() {
+      let key = document.getElementById("key").value;
+      let text = preprocessText(document.getElementById("inputText").value, true);
+      let matrix = generateMatrix(key);
+      let result = "";
+
+      for (let i = 0; i < text.length; i += 2) {
+        let a = text[i], b = text[i + 1];
+        let [rowA, colA] = findPos(matrix, a);
+        let [rowB, colB] = findPos(matrix, b);
+
+        if (rowA === rowB) {
+          result += matrix[rowA * 5 + (colA + 1) % 5];
+          result += matrix[rowB * 5 + (colB + 1) % 5];
+        } else if (colA === colB) {
+          result += matrix[((rowA + 1) % 5) * 5 + colA];
+          result += matrix[((rowB + 1) % 5) * 5 + colB];
+        } else {
+          result += matrix[rowA * 5 + colB];
+          result += matrix[rowB * 5 + colA];
+        }
+      }
+      document.getElementById("outputText").value = result;
+    }
+
+    function decrypt() {
+      let key = document.getElementById("key").value;
+      let text = preprocessText(document.getElementById("inputText").value, false);
+      let matrix = generateMatrix(key);
+      let result = "";
+
+      for (let i = 0; i < text.length; i += 2) {
+        let a = text[i], b = text[i + 1];
+        let [rowA, colA] = findPos(matrix, a);
+        let [rowB, colB] = findPos(matrix, b);
+
+        if (rowA === rowB) {
+          result += matrix[rowA * 5 + (colA + 4) % 5];
+          result += matrix[rowB * 5 + (colB + 4) % 5];
+        } else if (colA === colB) {
+          result += matrix[((rowA + 4) % 5) * 5 + colA];
+          result += matrix[((rowB + 4) % 5) * 5 + colB];
+        } else {
+          result += matrix[rowA * 5 + colB];
+          result += matrix[rowB * 5 + colA];
+        }
+      }
+      document.getElementById("outputText").value = result;
+    }
+  </script>
+</body>
+</html>

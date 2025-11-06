@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Demo Columnar Transposition Cipher</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#9aa7b2;
+    --accent:#6ee7b7;
+    --glass: rgba(255,255,255,0.03);
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(110,231,183,0.06), transparent 10%),
+      radial-gradient(900px 400px at 90% 90%, rgba(99,102,241,0.04), transparent 10%),
+      var(--bg);
+    color:#e6eef3;
+    padding:28px;
+    min-height:100vh;
+  }
+
+  .container{
+    max-width:980px;
+    margin:0 auto;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:18px;
+  }
+  .logo{
+    width:56px;height:56px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),#60a5fa);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#052014;
+    box-shadow:0 6px 18px rgba(0,0,0,0.6);
+    font-size:18px;
+  }
+  h1{margin:0;font-size:20px}
+  p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+  .card{
+    background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));
+    border-radius:var(--radius);
+    padding:18px;
+    margin-top:14px;
+    box-shadow: 0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 380px;
+    gap:16px;
+  }
+
+  label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+  textarea, input[type="text"]{
+    width:100%;
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.03);
+    color:inherit;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    resize:vertical;
+  }
+  input[type="text"]{height:40px}
+  .row{display:flex;gap:10px;align-items:center}
+  .small{font-size:13px;color:var(--muted)}
+
+  .btn{
+    background:linear-gradient(90deg,#22c1c3,#4facfe);
+    color:#042022;font-weight:700;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;
+    box-shadow:0 8px 20px rgba(45,212,191,0.08);
+  }
+  .btn.secondary{
+    background:transparent;color:var(--accent);border:1px solid rgba(110,231,183,0.12);
+    box-shadow:none;font-weight:600;
+  }
+  .btn.ghost{
+    background:transparent;border:1px dashed rgba(255,255,255,0.04);color:var(--muted);
+  }
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .meta{margin-top:10px;color:var(--muted);font-size:13px}
+
+  .matrix{
+    margin-top:12px;
+    overflow:auto;
+    border-radius:8px;
+    padding:8px;
+    background: rgba(255,255,255,0.02);
+  }
+  table.m{
+    border-collapse:collapse;
+  }
+  table.m td{
+    min-width:32px;height:34px;padding:6px;border:1px solid rgba(255,255,255,0.03);
+    text-align:center;font-family:monospace;font-size:13px;color:#e6eef3;
+  }
+  .footer{margin-top:14px;color:var(--muted);font-size:13px}
+
+  .right-card{display:flex;flex-direction:column;height:100%;gap:12px}
+  .card-section{background:transparent;padding:0}
+  .hint{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;color:var(--muted);font-size:13px}
+  .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+  @media (max-width:920px){
+    .grid{grid-template-columns:1fr; }
+    .right-card{order:3}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">CT</div>
+    <div>
+      <h1>Columnar Transposition — Demo</h1>
+      <p class="lead">Mã hoán vị cột (giữ nguyên ký tự — chỉ tráo vị trí). Hỗ trợ ký tự đặc biệt, số và khoảng trắng.</p>
+    </div>
+  </header>
+
+  <div class="card grid" role="main">
+    <!-- LEFT: inputs / output -->
+    <div>
+      <label for="inputText">Chuỗi (Plaintext / Ciphertext)</label>
+      <textarea id="inputText" rows="6" placeholder="Nhập chuỗi ở đây (có thể chứa chữ, số, ký tự đặc biệt, khoảng trắng)"></textarea>
+
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <div style="flex:1">
+          <label for="keyInput">Khóa (key)</label>
+          <input id="keyInput" type="text" placeholder="Nhập khóa (ví dụ: SECRET)" />
+        </div>
+        <div style="width:120px">
+          <label for="padInput">Padding</label>
+          <input id="padInput" type="text" maxlength="1" value="X" />
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="encryptBtn" class="btn">Mã hóa</button>
+        <button id="decryptBtn" class="btn secondary">Giải mã</button>
+        <button id="showMatrixBtn" class="btn ghost">Hiện/Ẩn matrix</button>
+        <button id="exampleBtn" class="btn ghost">Ví dụ mẫu</button>
+      </div>
+
+      <div class="meta" id="metaInfo">Trạng thái: sẵn sàng.</div>
+
+      <div style="margin-top:12px">
+        <label for="outputText">Kết quả</label>
+        <textarea id="outputText" rows="5" readonly placeholder="Kết quả sẽ xuất hiện ở đây"></textarea>
+        <div class="actions">
+          <button id="copyOut" class="btn ghost">Copy kết quả</button>
+          <button id="clearAll" class="btn ghost">Clear</button>
+        </div>
+      </div>
+
+      <div class="matrix" id="matrixWrap" style="display:none">
+        <div class="small">Matrix (ghi theo hàng). Cột được đọc theo thứ tự sắp chữ của khóa.</div>
+        <div id="matrixArea" style="margin-top:8px"></div>
+      </div>
+
+      <div class="footer">
+        <strong>Lưu ý:</strong> chương trình này *pad* (thêm ký tự padding) khi mã hóa để chiều dài chia hết cho số cột. Khi giải mã, nếu dùng ciphertext từ nguồn khác (không pad đủ), chương trình vẫn cố gắng xử lý — nhưng để chính xác nên dùng ciphertext do chức năng mã hóa của demo sinh ra.
+      </div>
+    </div>
+
+    <!-- RIGHT: help / explanation -->
+    <div class="right-card">
+      <div class="card card-section">
+        <div class="hint">
+          <strong>Giải thích ngắn:</strong><br>
+          - Ghi plaintext vào bảng theo hàng với số cột = độ dài khóa.<br>
+          - Xếp các cột theo thứ tự chữ cái của khóa; đọc từng cột theo thứ tự đó để tạo ciphertext.<br>
+          - Giải mã thực hiện ngược lại: chia ciphertext thành các cột theo thứ tự sắp chữ, sau đó đọc hàng để lấy plaintext.
+        </div>
+      </div>
+
+      <div class="card card-section">
+        <div class="small">Demo of Nguyen Trung Hieu</div>
+      </div>
+
+      <div class="card card-section hint">
+        <div style="font-weight:700">Mẹo</div>
+        <ul style="margin:8px 0 0 18px;color:var(--muted)">
+          <li>Khóa trùng ký tự vẫn được xử lý theo chỉ số gốc (deterministic).</li>
+          <li>Padding mặc định là 'X' — có thể đổi trước khi mã hóa.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+ Columnar Transposition Demo (JS)
+ - preserves all characters (letters, digits, punctuation, spaces)
+ - stable ordering for duplicate key chars (tie-break by original index)
+ - shows matrix (optional)
+*/
+
+// helper: compute order array from key
+function keyOrder(key) {
+  // returns array of column indices in the order they should be read
+  // stable sort by char, tie-break by original index
+  const arr = [];
+  for (let i = 0; i < key.length; ++i) arr.push({ch: key[i], idx: i});
+  arr.sort((a,b) => {
+    if (a.ch < b.ch) return -1;
+    if (a.ch > b.ch) return 1;
+    return a.idx - b.idx;
+  });
+  return arr.map(x => x.idx);
+}
+
+// encrypt: plaintext -> ciphertext
+function encryptColumnar(plaintext, key, padChar='X') {
+  if (!key || key.length === 0) return plaintext;
+  const m = key.length;
+  const L = plaintext.length;
+  const rows = Math.ceil(L / m);
+  // build matrix rows x m and fill row-wise
+  const matrix = Array.from({length: rows}, () => Array.from({length: m}, () => padChar));
+  let pos = 0;
+  for (let r = 0; r < rows; ++r) {
+    for (let c = 0; c < m; ++c) {
+      if (pos < L) matrix[r][c] = plaintext[pos++];
+      else matrix[r][c] = padChar;
+    }
+  }
+  const order = keyOrder(key);
+  let cipher = '';
+  for (let k = 0; k < order.length; ++k) {
+    const c = order[k];
+    for (let r = 0; r < rows; ++r) cipher += matrix[r][c];
+  }
+  return {cipher, matrix, rows};
+}
+
+// decrypt: ciphertext -> plaintext
+function decryptColumnar(ciphertext, key, padChar='X') {
+  if (!key || key.length === 0) return ciphertext;
+  const m = key.length;
+  const L = ciphertext.length;
+  const rows = Math.ceil(L / m);
+  // create empty matrix rows x m
+  const matrix = Array.from({length: rows}, () => Array.from({length: m}, () => ''));
+  const order = keyOrder(key);
+  // Fill columns in the order sequence; allow ciphertext shorter than rows*m
+  let pos = 0;
+  for (let k = 0; k < order.length; ++k) {
+    const c = order[k];
+    for (let r = 0; r < rows; ++r) {
+      if (pos < L) matrix[r][c] = ciphertext[pos++];
+      else matrix[r][c] = padChar; // fallback
+    }
+  }
+  // read row-wise
+  let plain = '';
+  for (let r = 0; r < rows; ++r) {
+    for (let c = 0; c < m; ++c) {
+      plain += matrix[r][c];
+    }
+  }
+  // strip trailing padding characters that were added during encryption
+  while (plain.endsWith(padChar)) plain = plain.slice(0, -1);
+  return {plain, matrix, rows};
+}
+
+// UI wiring
+const inputText = document.getElementById('inputText');
+const outputText = document.getElementById('outputText');
+const keyInput = document.getElementById('keyInput');
+const padInput = document.getElementById('padInput');
+const encryptBtn = document.getElementById('encryptBtn');
+const decryptBtn = document.getElementById('decryptBtn');
+const showMatrixBtn = document.getElementById('showMatrixBtn');
+const matrixWrap = document.getElementById('matrixWrap');
+const matrixArea = document.getElementById('matrixArea');
+const metaInfo = document.getElementById('metaInfo');
+const copyOut = document.getElementById('copyOut');
+const clearAll = document.getElementById('clearAll');
+const exampleBtn = document.getElementById('exampleBtn');
+
+function renderMatrix(matrix) {
+  if (!matrix) { matrixArea.innerHTML = '<div class="small">Không có matrix để hiển thị.</div>'; return; }
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  let html = '<table class="m">';
+  for (let r = 0; r < rows; ++r) {
+    html += '<tr>';
+    for (let c = 0; c < cols; ++c) {
+      const ch = matrix[r][c] === '' ? '&nbsp;' : escapeHtml(matrix[r][c]);
+      html += `<td>${ch}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  matrixArea.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/ /g, '&nbsp;');
+}
+
+encryptBtn.addEventListener('click', ()=> {
+  const pt = inputText.value;
+  const k = keyInput.value;
+  const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+  if (!k || k.length === 0) {
+    alert('Vui lòng nhập khóa (key) trước khi mã hóa.');
+    return;
+  }
+  const {cipher, matrix, rows} = encryptColumnar(pt, k, pad);
+  outputText.value = cipher;
+  metaInfo.textContent = `Đã mã hóa — chiều dài plaintext=${pt.length}, keyLength=${k.length}, rows=${rows}, cipherLength=${cipher.length}`;
+  if (matrixWrap.style.display !== 'none') renderMatrix(matrix);
+});
+
+decryptBtn.addEventListener('click', ()=> {
+  const ct = inputText.value;
+  const k = keyInput.value;
+  const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+  if (!k || k.length === 0) {
+    alert('Vui lòng nhập khóa (key) trước khi giải mã.');
+    return;
+  }
+  const {plain, matrix, rows} = decryptColumnar(ct, k, pad);
+  outputText.value = plain;
+  metaInfo.textContent = `Đã giải mã — chiều dài ciphertext=${ct.length}, keyLength=${k.length}, rows=${rows}, plainLength=${plain.length}`;
+  if (matrixWrap.style.display !== 'none') renderMatrix(matrix);
+});
+
+showMatrixBtn.addEventListener('click', ()=> {
+  if (matrixWrap.style.display === 'none') {
+    matrixWrap.style.display = 'block';
+    showMatrixBtn.textContent = 'Ẩn matrix';
+    // try to render last used (prefer output if exists)
+    const last = outputText.value || inputText.value;
+    const k = keyInput.value;
+    const pad = (padInput.value && padInput.value[0]) ? padInput.value[0] : 'X';
+    if (k && k.length > 0) {
+      // if output exists, try to interpret as ciphertext and show matrix for decrypt attempt
+      if (outputText.value) {
+        const res = decryptColumnar(outputText.value, k, pad);
+        renderMatrix(res.matrix);
+      } else {
+        const res = encryptColumnar(inputText.value, k, pad);
+        renderMatrix(res.matrix);
+      }
+    } else {
+      matrixArea.innerHTML = '<div class="small">Nhập khóa để xem matrix.</div>';
+    }
+  } else {
+    matrixWrap.style.display = 'none';
+    showMatrixBtn.textContent = 'Hiện/Ẩn matrix';
+  }
+});
+
+copyOut.addEventListener('click', async ()=> {
+  try {
+    await navigator.clipboard.writeText(outputText.value || '');
+    metaInfo.textContent = 'Đã copy kết quả vào clipboard.';
+  } catch(e) {
+    metaInfo.textContent = 'Không thể copy — trình duyệt không cho phép.';
+  }
+});
+
+clearAll.addEventListener('click', ()=> {
+  inputText.value = '';
+  outputText.value = '';
+  keyInput.value = '';
+  padInput.value = 'X';
+  metaInfo.textContent = 'Đã clear.';
+  matrixArea.innerHTML = '';
+});
+
+exampleBtn.addEventListener('click', ()=> {
+  inputText.value = 'WE ARE DISCOVERED. FLEE AT ONCE!';
+  keyInput.value = 'ZEBRAS';
+  padInput.value = 'X';
+  metaInfo.textContent = 'Ví dụ mẫu đã nạp. Nhấn "Mã hóa" để xem kết quả.';
+});
+
+// keyboard: Ctrl+Enter to run encrypt
+inputText.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    encryptBtn.click();
+  }
+});
+</script>
+</body>
+</html>

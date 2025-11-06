@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo Vigenère Cipher</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:24px;background:#f7f8fb;color:#111}
+    .card{background:white;padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(20,20,50,0.06);max-width:900px;margin:0 auto}
+    h1{font-size:20px;margin:0 0 12px}
+    label{display:block;margin:12px 0 6px;font-weight:600}
+    textarea,input[type=text],select{width:100%;padding:10px;border-radius:8px;border:1px solid #e3e7ef;font-size:14px}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    button{padding:10px 14px;border-radius:8px;border:0;background:#0b69ff;color:white;font-weight:600;cursor:pointer}
+    button.secondary{background:#444;color:white}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}
+    .muted{color:#556}
+    .footer{margin-top:12px;font-size:13px;color:#445}
+    .small{font-size:13px;color:#667}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Demo Vigenère Cipher</h1>
+    <div class="small">Hướng dẫn: Nhập văn bản và khóa. Chọn <strong>Mode</strong> để áp dụng Vigenère cho chữ (A–Z) hoặc cho mọi ký tự in được (ASCII 32–126, bao gồm số, ký tự đặc biệt). Non-letter sẽ được giữ nguyên trong chế độ Letters-only.</div>
+
+    <label for="mode">Mode</label>
+    <select id="mode">
+      <option value="letters">Letters only (A–Z, không đổi ký tự khác)</option>
+      <option value="ascii">Full printable ASCII (32–126) — hỗ trợ số & ký tự</option>
+    </select>
+
+    <label for="inputText">Input (Plaintext hoặc Ciphertext)</label>
+    <textarea id="inputText" rows="6" placeholder="Nhập văn bản ở đây..."></textarea>
+
+    <div class="row">
+      <div class="col">
+        <label for="key">Khóa (Key)</label>
+        <input id="key" type="text" placeholder="Ví dụ: LEMON hoặc secret123" />
+      </div>
+      <div style="min-width:180px">
+        <label for="case">Tùy chọn</label>
+        <select id="case">
+          <option value="preserve">Giữ phân biệt hoa/thường</option>
+          <option value="upper">Chuyển về Uppercase (thích hợp cho Letters only)</option>
+          <option value="lower">Chuyển về Lowercase</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="enc">Mã hóa (Encrypt)</button>
+      <button id="dec" class="secondary">Giải mã (Decrypt)</button>
+      <button id="swap" class="secondary">Hoán đổi Input/Output</button>
+      <button id="copy" class="secondary">Sao chép kết quả</button>
+    </div>
+
+    <label for="output">Kết quả</label>
+    <pre id="output" style="min-height:80px"></pre>
+
+    <div class="footer">
+      <div class="muted">Ghi chú:</div>
+      <ul>
+        <li class="small">Mode "Letters only" sẽ chỉ dịch các ký tự A–Z (hoặc a–z). Số và ký tự đặc biệt giữ nguyên.</li>
+        <li class="small">Mode "Full printable ASCII" sẽ mã mọi ký tự có mã từ 32 đến 126 bằng modulo 95.</li>
+        
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Utils
+    function isLetter(ch){return /[A-Za-z]/.test(ch)}
+    function mod(n,m){return ((n % m) + m) % m}
+
+    function prepareKey(key, length, mode){
+      if(!key) return null;
+      if(mode === 'letters'){
+        // remove non-letters from key
+        const clean = key.replace(/[^A-Za-z]/g,'');
+        if(clean.length === 0) return null;
+        // map to 0..25
+        const arr = [];
+        for(let i=0;i<length;i++){
+          const ch = clean[i % clean.length];
+          arr.push(ch.toUpperCase().charCodeAt(0) - 65);
+        }
+        return arr;
+      } else {
+        // ascii mode: use full printable ASCII codes 32..126 => modulus 95
+        const clean = key.split('');
+        if(clean.length === 0) return null;
+        const arr = [];
+        for(let i=0;i<length;i++){
+          const code = clean[i % clean.length].charCodeAt(0);
+          // map into 0..94 by shifting 32..126 -> 0..94
+          arr.push(mod(code - 32, 95));
+        }
+        return arr;
+      }
+    }
+
+    function encryptVigenere(plaintext, key, mode, caseHandling){
+      if(!key) return {err:'Key is empty'};
+      if(mode === 'letters'){
+        // Build key array only counting letters of plaintext (so that non-letters don't consume key)
+        const lettersOnly = plaintext.split('').filter(c=>isLetter(c));
+        const keyArr = prepareKey(key, lettersOnly.length, 'letters');
+        if(!keyArr) return {err:'Key must contain letters for Letters-only mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let ch of plaintext){
+          if(isLetter(ch)){
+            const base = (ch === ch.toUpperCase()) ? 65 : 97;
+            const p = ch.toUpperCase().charCodeAt(0) - 65; // use uppercase for shift
+            const k = keyArr[keyIndex++];
+            const c = mod(p + k, 26);
+            let enc = String.fromCharCode(c + base);
+            // case handling: preserve by default; if upper/lower forced, adjust
+            if(caseHandling === 'upper') enc = enc.toUpperCase();
+            if(caseHandling === 'lower') enc = enc.toLowerCase();
+            out += enc;
+          } else {
+            out += ch;
+          }
+        }
+        return {text: out};
+      } else {
+        // ASCII mode; every printable char is encoded; other chars unchanged
+        const printable = [];
+        for(let ch of plaintext){
+          const code = ch.charCodeAt(0);
+          printable.push((code >= 32 && code <= 126) ? true : false);
+        }
+        const printableCount = printable.filter(Boolean).length;
+        const keyArr = prepareKey(key, printableCount, 'ascii');
+        if(!keyArr) return {err:'Key is empty for ASCII mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let i=0;i<plaintext.length;i++){
+          const ch = plaintext[i];
+          const code = ch.charCodeAt(0);
+          if(code >= 32 && code <= 126){
+            const p = code - 32;
+            const k = keyArr[keyIndex++];
+            const c = mod(p + k, 95);
+            out += String.fromCharCode(c + 32);
+          } else {
+            out += ch;
+          }
+        }
+        // case handling for ascii mode: apply if requested
+        if(caseHandling === 'upper') return {text: out.toUpperCase()};
+        if(caseHandling === 'lower') return {text: out.toLowerCase()};
+        return {text: out};
+      }
+    }
+
+    function decryptVigenere(ciphertext, key, mode, caseHandling){
+      if(!key) return {err:'Key is empty'};
+      if(mode === 'letters'){
+        const lettersOnly = ciphertext.split('').filter(c=>isLetter(c));
+        const keyArr = prepareKey(key, lettersOnly.length, 'letters');
+        if(!keyArr) return {err:'Key must contain letters for Letters-only mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let ch of ciphertext){
+          if(isLetter(ch)){
+            const base = (ch === ch.toUpperCase()) ? 65 : 97;
+            const c = ch.toUpperCase().charCodeAt(0) - 65;
+            const k = keyArr[keyIndex++];
+            const p = mod(c - k, 26);
+            let dec = String.fromCharCode(p + base);
+            if(caseHandling === 'upper') dec = dec.toUpperCase();
+            if(caseHandling === 'lower') dec = dec.toLowerCase();
+            out += dec;
+          } else {
+            out += ch;
+          }
+        }
+        return {text: out};
+      } else {
+        const printable = [];
+        for(let ch of ciphertext){
+          const code = ch.charCodeAt(0);
+          printable.push((code >= 32 && code <= 126) ? true : false);
+        }
+        const printableCount = printable.filter(Boolean).length;
+        const keyArr = prepareKey(key, printableCount, 'ascii');
+        if(!keyArr) return {err:'Key is empty for ASCII mode.'};
+        let keyIndex = 0;
+        let out = '';
+        for(let i=0;i<ciphertext.length;i++){
+          const ch = ciphertext[i];
+          const code = ch.charCodeAt(0);
+          if(code >= 32 && code <= 126){
+            const c = code - 32;
+            const k = keyArr[keyIndex++];
+            const p = mod(c - k, 95);
+            out += String.fromCharCode(p + 32);
+          } else {
+            out += ch;
+          }
+        }
+        if(caseHandling === 'upper') return {text: out.toUpperCase()};
+        if(caseHandling === 'lower') return {text: out.toLowerCase()};
+        return {text: out};
+      }
+    }
+
+    // DOM
+    const inputText = document.getElementById('inputText');
+    const keyInput = document.getElementById('key');
+    const output = document.getElementById('output');
+    const encBtn = document.getElementById('enc');
+    const decBtn = document.getElementById('dec');
+    const copyBtn = document.getElementById('copy');
+    const swapBtn = document.getElementById('swap');
+    const modeSel = document.getElementById('mode');
+    const caseSel = document.getElementById('case');
+
+    encBtn.addEventListener('click', ()=>{
+      const mode = modeSel.value;
+      const caseHandling = caseSel.value;
+      const res = encryptVigenere(inputText.value, keyInput.value, mode, caseHandling);
+      if(res.err) output.textContent = 'Error: ' + res.err;
+      else output.textContent = res.text;
+    });
+
+    decBtn.addEventListener('click', ()=>{
+      const mode = modeSel.value;
+      const caseHandling = caseSel.value;
+      const res = decryptVigenere(inputText.value, keyInput.value, mode, caseHandling);
+      if(res.err) output.textContent = 'Error: ' + res.err;
+      else output.textContent = res.text;
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(output.textContent);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=>copyBtn.textContent = 'Sao chép kết quả',1200);
+      }catch(e){
+        alert('Không thể sao chép. Hãy copy thủ công.');
+      }
+    });
+
+    swapBtn.addEventListener('click', ()=>{
+      const tmp = inputText.value;
+      inputText.value = output.textContent || '';
+      output.textContent = tmp || '';
+    });
+
+    // Example placeholder
+    inputText.value = 'XIN CHAO!';
+    keyInput.value = 'LEMON';
+  </script>
+</body>
+</html>
